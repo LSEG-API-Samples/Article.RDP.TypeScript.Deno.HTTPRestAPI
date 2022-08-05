@@ -1,0 +1,13 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
+// https://github.com/microsoft/vscode-dev-containers/tree/v0.202.5/containers/
+{
+	"name": "Deno Learning",
+	"image": "denoland/deno:alpine-1.24.0",
+	"runArgs": [
+        "--env-file=.devcontainer/.env.devcontainer"
+    ],
+	"workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
+	"workspaceFolder": "/workspace",
+	"extensions": ["denoland.vscode-deno"],
+	"shutdownAction":"stopContainer"
+}

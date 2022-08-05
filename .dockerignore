@@ -1,0 +1,10 @@
+.devcontainer/.env.devcontainer
+.devcontainer/.env.devcontainer.example
+*.md
+.git/
+images/
+.gitignore
+video/
+.env
+.env.example
+.vscode/
