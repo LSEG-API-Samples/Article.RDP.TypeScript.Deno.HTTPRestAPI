@@ -8,9 +8,13 @@
 // Example Code Disclaimer:
 // ALL EXAMPLE CODE IS PROVIDED ON AN “AS IS” AND “AS AVAILABLE” BASIS FOR ILLUSTRATIVE PURPOSES ONLY. REFINITIV MAKES NO REPRESENTATIONS OR WARRANTIES OF ANY KIND, EXPRESS OR IMPLIED, AS TO THE OPERATION OF THE EXAMPLE CODE, OR THE INFORMATION, CONTENT, OR MATERIALS USED IN CONNECTION WITH THE EXAMPLE CODE. YOU EXPRESSLY AGREE THAT YOUR USE OF THE EXAMPLE CODE IS AT YOUR SOLE RISK.
 
-
+// Deno STD libraries
 import { parse } from "https://deno.land/std@0.150.0/flags/mod.ts";
 import { encode } from "https://deno.land/std@0.150.0/encoding/base64.ts";
+
+// NPM library
+import pino from "https://esm.sh/pino";
+
 import {
   RDP_AuthToken_Type,
   RDP_reqAuthRevoke_Type,
@@ -18,7 +22,9 @@ import {
   RDP_ResSymbology_Table_Type,
 } from "./rdp_types.ts";
 
+// A Class that handles all HTTP operations.
 class RDPController {
+  //Set Up HTTP APIs URLs
   readonly rdpServer: string = Deno.env.get("RDP_BASE_URL") ||
     "https://api.refinitiv.com";
   readonly rdpAuthURL: string = Deno.env.get("RDP_AUTH_URL") ||
@@ -33,19 +39,26 @@ class RDPController {
     "/discovery/symbology/v1/lookup";
   readonly rdpAuthRevokeURL: string = Deno.env.get("RDP_AUTH_REVOKE_URL") ||
     "/auth/oauth2/v1/revoke";
-  readonly scope: string = "trapi";
-  takeExclusiveSignOnControl: boolean;
+  
+  //Logger
+  logger: any;
 
-  constructor() {
-    this.takeExclusiveSignOnControl = true;
+  constructor(logger: any) {
+    this.logger = logger;
   }
 
+  // Send HTTP Post request to get Access Token (Password Grant and Refresh Grant) from RDP Auth Service
   authenticationRDP = async (
     username: string,
     password: string,
     client_id: string,
-    refresh_token: string,
+    refresh_token: string
   ): Promise<RDP_AuthToken_Type> => {
+
+    // Set Up RDP Auth Token additional params .
+    const scope = "trapi";
+    const takeExclusiveSignOnControl = true;
+
     if (
       username.length === 0 || password.length === 0 || client_id.length === 0
     ) {
@@ -59,12 +72,17 @@ class RDPController {
     //Init Authentication Request Message and First Login scenario
     if (refresh_token.length === 0) {
       authReqMsg =
-        `username=${username}&client_id=${client_id}&password=${password}&scope=${this.scope}&grant_type=password&takeExclusiveSignOnControl=${this.takeExclusiveSignOnControl}`;
+        `username=${username}&client_id=${client_id}&password=${password}&scope=${scope}&grant_type=password&takeExclusiveSignOnControl=${takeExclusiveSignOnControl}`;
     } else { //For the Refresh_Token scenario
       authReqMsg =
-        `username=${username}&client_id=${client_id}&refresh_token=${refresh_token}&grant_type=refresh_token&takeExclusiveSignOnControl=${this.takeExclusiveSignOnControl}`;
+        `username=${username}&client_id=${client_id}&refresh_token=${refresh_token}&grant_type=refresh_token&takeExclusiveSignOnControl=${takeExclusiveSignOnControl}`;
     }
 
+    this.logger.debug(
+      `RDPController:authenticationRDP(): Outgoing Request Message = ${authReqMsg}`,
+    );
+
+    // Send HTTP Request
     const response: Response = await fetch(authenURL, {
       method: "POST",
       headers: {
@@ -72,6 +90,7 @@ class RDPController {
       },
       body: new URLSearchParams(authReqMsg),
     });
+
     if (!response.ok) {
       console.log("Authentication Failed");
       const statusText: string = await response.text();
@@ -81,19 +100,26 @@ class RDPController {
     return await response.json();
   };
 
+  // Send Authentication Revoke Request message to RDP Auth Service
   revokeAuthenticaion = async (client_id: string, access_token: string) => {
     if (client_id.length === 0 || access_token.length === 0) {
       throw new Error("Received invalid (None or Empty) arguments");
     }
 
     const authenURL = `${this.rdpServer}${this.rdpAuthRevokeURL}`;
-    const authReq: RDP_reqAuthRevoke_Type = {
+    console.log(`Requesting Authenticaion Revoke from ${authenURL}`);
+
+    const authReqMsg: RDP_reqAuthRevoke_Type = {
       "token": access_token,
     };
-
-    //const clientIDBase64: string = Buffer.from(`${new TextEncoder().encode(client_id)}:`).toString('base64')
-
+    // Convert client_id to base64 string
     const clientIDBase64: string = encode(`${client_id}:`);
+
+    this.logger.debug(
+      `RDPController:revokeAuthenticaion(): Outgoing Request Message = ${
+        JSON.stringify(authReqMsg, null, 2)
+      }`,
+    );
 
     // Send HTTP Request
     const response = await fetch(authenURL, {
@@ -102,7 +128,7 @@ class RDPController {
         "Content-Type": "application/x-www-form-urlencoded",
         "Authorization": `Basic ${clientIDBase64}`,
       },
-      body: new URLSearchParams(authReq),
+      body: new URLSearchParams(authReqMsg),
     });
 
     if (!response.ok) {
@@ -113,6 +139,7 @@ class RDPController {
     console.log("Authentication Revoked");
   };
 
+  // Request Chain Data from RDP Pricing Service
   getChain = async (symbol: string, access_token: string) => {
     if (symbol.length === 0 || access_token.length === 0) {
       throw new Error("Received invalid (None or Empty) arguments");
@@ -145,11 +172,12 @@ class RDPController {
     return await response.json();
   };
 
+  // Request Symbology Lookup Data from RDP Symbology Lookup Service
   getSymbology = async (symbols: string[], access_token: string) => {
     const symbologyURL = `${this.rdpServer}${this.rdpSymbology}`;
 
     console.log(`Requesting PermID Data from ${symbologyURL}`);
-
+    // Create Symbology Request Message
     const payload: RDP_ReqSymbology_Type = {
       "from": [{
         "identifierTypes": [
@@ -172,6 +200,12 @@ class RDPController {
       ],
       "type": "auto",
     };
+
+    this.logger.debug(
+      `RDPController:getSymbology(): Outgoing Request Message = ${
+        JSON.stringify(payload, null, 2)
+      }`,
+    );
 
     // Send HTTP Request
     const response: Response = await fetch(symbologyURL, {
@@ -212,6 +246,7 @@ class Application {
   password: string;
   clientid: string;
   limit: number;
+  logger: any;
 
   constructor(
     username: string,
@@ -219,31 +254,38 @@ class Application {
     clientid: string,
     itemname: string,
     limit: number,
+    debug: boolean,
   ) {
-    this.rdpHTTPApp = new RDPController();
     this.username = username;
     this.password = password;
     this.clientid = clientid;
     this.itemName = itemname;
     this.limit = limit;
+
+    this.logger = pino({ level: debug ? "debug" : "info" });
+
+    this.rdpHTTPApp = new RDPController(this.logger);
   }
 
   run = async () => {
     try {
+      //Send authentication request
       this.rdpAuthObj = await this.rdpHTTPApp.authenticationRDP(
         this.username,
         this.password,
         this.clientid,
         this.rdpAuthObj.refresh_token,
       );
-      console.log(this.rdpAuthObj);
+      this.logger.debug(JSON.stringify(this.rdpAuthObj));
 
+      //Send chain data request
       const chainData = await this.rdpHTTPApp.getChain(
         this.itemName,
         this.rdpAuthObj.access_token,
       );
-      console.log(chainData);
+      this.logger.debug(chainData);
 
+      //check if limit argument is larger than actual chain data.
       if (this.limit > chainData["data"]["constituents"].length) {
         throw new Error(
           `Input limit (${this.limit}) is higher than numbers of Chain (${
@@ -252,23 +294,28 @@ class Application {
         );
       }
 
+      //Send PermIDs data request
       const permIDData = await this.rdpHTTPApp.getSymbology(
         chainData["data"]["constituents"].slice(0, this.limit),
         this.rdpAuthObj.access_token,
       );
-      //console.log(JSON.stringify(permIDData))
+      this.logger.debug(JSON.stringify(permIDData));
+      //Displaying PermIDs data
       this.displayPermID(permIDData);
 
+      //Send revoke authentication request
       await this.rdpHTTPApp.revokeAuthenticaion(
         this.clientid,
         this.rdpAuthObj.access_token,
       );
     } catch (error) {
-      console.log(error);
+      //console.log(error);
+      this.logger.error(error);
       Deno.exit(1);
     }
   };
 
+  // Convert PermIDs JSON data to be a table
   displayPermID = (permIDJSON: any) => {
     const permIDData = permIDJSON["data"];
 
@@ -294,12 +341,12 @@ class Application {
   };
 }
 
+//Parsing command line arguments
 const flags = parse(Deno.args, {
   string: ["username", "password", "clientid", "chainric"],
-  default: { chainric: ".AV.O", limit: 10 },
-})
-
-console.log(Deno.args)
+  boolean: ["debug"],
+  default: { chainric: ".AV.O", limit: 10, debug: false },
+});
 
 if (
   flags.username == null || flags.password == null || flags.clientid == null
@@ -314,7 +361,9 @@ const app = new Application(
   flags.clientid,
   flags.chainric,
   flags.limit as number,
+  flags.debug,
 );
+// Running the application
 app.run();
 
-//deno run --allow-env --allow-net ./src/main.ts --username $RDP_USERNAME --password $RDP_PASSWORD --clientid $RDP_APP_KEY --chainric 0#.HSI
+//deno run --allow-env --allow-net ./src/main.ts --username $RDP_USERNAME --password $RDP_PASSWORD --clientid $RDP_APP_KEY --chainric 0#.HSI --debug

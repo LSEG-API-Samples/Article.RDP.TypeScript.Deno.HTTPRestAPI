@@ -12,9 +12,8 @@
             "cwd": "${workspaceFolder}",
             "runtimeExecutable": "/bin/deno",
             "runtimeArgs": ["run", "--allow-env", "--allow-net"],
-			"args": ["--username","${env:RDP_USERNAME}","--password","${env:RDP_PASSWORD}","--clientid","${env:RDP_APP_KEY}","--chainric",".AV.O"],
-            //"attachSimplePort": 9229,
-            "outputCapture": "std",
+			"args": ["--username","${env:RDP_USERNAME}","--password","${env:RDP_PASSWORD}","--clientid","${env:RDP_APP_KEY}","--chainric","0#.SETI"],
+            "outputCapture": "std"
         }
     ]
 }

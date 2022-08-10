@@ -12,3 +12,4 @@ COPY src ./src
 
 # Run application
 ENTRYPOINT [ "deno", "run", "--allow-env", "--allow-net", "./src/main.ts"]
+

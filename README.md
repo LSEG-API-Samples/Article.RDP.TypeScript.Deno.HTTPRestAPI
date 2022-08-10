@@ -72,6 +72,35 @@ If you want to run the example with a Docker container manually, please follow t
     ```
     $> docker rm deno_http_app
     ```
+### <a id="debug_run"></a>How to enable the Debug Log
+
+You can enable the HTTP debug log to trace HTTP request-response messages with the ```--debug``` command line argument.
+
+Example:
+```
+$> docker run -it --name deno_http_app --env-file .env deno_http_app --username %RDP_USERNAME% --password %RDP_PASSWORD% --clientid %RDP_CLIENTID/APPKEY% --chainric <Chain RIC> --limit <numbers of RICs to get PermID> --debug
+```
+Or add the ```--debug``` parameter to ```"args"``` parameter of the ```launch.json``` configuration file.
+
+```
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "request": "launch",
+            "name": "Launch Program",
+            "type": "node",
+            "program": "${workspaceFolder}/src/main.ts",
+            "cwd": "${workspaceFolder}",
+            "runtimeExecutable": "/bin/deno",
+            "runtimeArgs": ["run", "--allow-env", "--allow-net"],
+			"args": ["--username","${env:RDP_USERNAME}","--password","${env:RDP_PASSWORD}","--clientid","${env:RDP_APP_KEY}","--chainric",".AV.O","--debug"],
+            "outputCapture": "std"
+        }
+    ]
+}
+```
+
 ## Reference
 
 https://medium.com/deno-the-complete-reference/running-deno-in-docker-35756ffff66d
