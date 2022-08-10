@@ -1,14 +1,31 @@
 # Experimenting Deno JavaScript runtime with HTTP REST API application.
+- version: 1.0
+- Last update: August, 2022
+- Environment: Deno runtime and Docker
+- Prerequisite: [Access to RDP credentials](#prerequisite)
 
 **This project is not finished yet**.
 
+Example Code Disclaimer:
+ALL EXAMPLE CODE IS PROVIDED ON AN “AS IS” AND “AS AVAILABLE” BASIS FOR ILLUSTRATIVE PURPOSES ONLY. REFINITIV MAKES NO REPRESENTATIONS OR WARRANTIES OF ANY KIND, EXPRESS OR IMPLIED, AS TO THE OPERATION OF THE EXAMPLE CODE, OR THE INFORMATION, CONTENT, OR MATERIALS USED IN CONNECTION WITH THE EXAMPLE CODE. YOU EXPRESSLY AGREE THAT YOUR USE OF THE EXAMPLE CODE IS AT YOUR SOLE RISK.
+
 ## <a id="intro"></a>Introduction
+
+[Deno](https://deno.land/) is a modern JavaScript,[TypeScript](https://www.typescriptlang.org/), and [WebAssembly](https://webassembly.org/) runtime based on the V8 JavaScript engine that is written in [Rust](https://www.rust-lang.org/). Interestingly, Deno is co-created by Ryan Dahl, who also created [Node.js](https://nodejs.org/en/) runtime. 
+
+Deno was announced on 2018 on Ryan's [JSConf](https://jsconf.com/) EU 2018 talk [10 Things I Regret About Node.js](https://www.youtube.com/watch?v=M3BM9TB-8yA) admit his initial design decisions with Node.js such as not using promises, the legacy build system, node_modules, package.json, etc which lead to many Node.js drawbacks. In the same talk, Ryan introduced Deno as a new runtime that aims to simplify web platform development with a modern and secure design by default.
 
 This example project shows how to implement a console [TypeScript](https://www.typescriptlang.org) application to retrieve financial data from HTTP REST API with Deno JavaScript runtime. The application uses the [Refinitiv Data Platform (RDP) APIs](https://developers.refinitiv.com/en/api-catalog/refinitiv-data-platform/refinitiv-data-platform-apis) as the example HTTP REST APIs. The project is implemented and run in a controlled environment such as [Docker](https://www.docker.com/) and [devcontainer](https://code.visualstudio.com/docs/remote/containers) using the [Deno Docker Image](https://hub.docker.com/r/denoland/deno). 
 
-## Deno features
+## <a id="intro_deno"></a>Introduction to Deno
 - Support Base64 encoding out of the box
 - Support command line arguments out of the box
+- Secure by default. No file, network, or environment access, unless explicitly enabled.
+- Supports TypeScript out of the box.
+- Ships only a single executable file.
+- Supports only ES Modules like browsers where Node.js supports both ES Modules and CommonJS. 
+- Supports only URLs for loading local or remote dependencies, similar to browsers, so a package manager is not required.
+- And much more
 
 ## <a id="prerequisite"></a>Prerequisite
 This demo project requires the following dependencies.
