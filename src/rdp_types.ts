@@ -8,18 +8,18 @@
 // Example Code Disclaimer:
 // ALL EXAMPLE CODE IS PROVIDED ON AN “AS IS” AND “AS AVAILABLE” BASIS FOR ILLUSTRATIVE PURPOSES ONLY. REFINITIV MAKES NO REPRESENTATIONS OR WARRANTIES OF ANY KIND, EXPRESS OR IMPLIED, AS TO THE OPERATION OF THE EXAMPLE CODE, OR THE INFORMATION, CONTENT, OR MATERIALS USED IN CONNECTION WITH THE EXAMPLE CODE. YOU EXPRESSLY AGREE THAT YOUR USE OF THE EXAMPLE CODE IS AT YOUR SOLE RISK.
 
-
-// Type for RDP Auth Revoke Token (v1) request message
-export type RDP_reqAuthRevoke_Type = {
-  token: string;
-};
-
+// Types for RDP Authentication (success) response message
 export type RDP_AuthToken_Type = {
   access_token: string;
   refresh_token: string;
   expires_in: string;
   scope: string;
   token_type: string;
+};
+
+// Type for RDP Auth Revoke Token (v1) request message
+export type RDP_reqAuthRevoke_Type = {
+  token: string;
 };
 
 

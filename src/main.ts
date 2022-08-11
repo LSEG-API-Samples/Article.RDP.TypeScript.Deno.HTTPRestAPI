@@ -12,7 +12,7 @@
 import { parse } from "https://deno.land/std@0.150.0/flags/mod.ts";
 import { encode } from "https://deno.land/std@0.150.0/encoding/base64.ts";
 
-// NPM library
+// NPM library for logging
 import pino from "https://esm.sh/pino";
 
 import {
@@ -29,10 +29,6 @@ class RDPController {
     "https://api.refinitiv.com";
   readonly rdpAuthURL: string = Deno.env.get("RDP_AUTH_URL") ||
     "/auth/oauth2/v1/token";
-  readonly rdpNewsHeadlinesURL: string = Deno.env.get("RDP_NEWS_URL") ||
-    "/data/news/v1/headlines";
-  readonly rdpNewsStoryURL: string = Deno.env.get("RDP_STORY_URL") ||
-    "/data/news/v1/stories";
   readonly rdpChainURL: string = Deno.env.get("RDP_CHAIN_URL") ||
     "/data/pricing/chains/v1";
   readonly rdpSymbology: string = Deno.env.get("RDP_SYMBOLOGY_URL") ||
@@ -229,9 +225,10 @@ class RDPController {
   };
 }
 
+// Main Application Logic class
 class Application {
-  // RDP Credentials
 
+  //RDP Token Auth object
   rdpAuthObj: RDP_AuthToken_Type = {
     access_token: "",
     refresh_token: "",
@@ -240,8 +237,11 @@ class Application {
     token_type: "",
   };
 
+  //RDP HTTP Controller class
   rdpHTTPApp: RDPController;
+
   itemName: string;
+  //RDP Credentials
   username: string;
   password: string;
   clientid: string;
@@ -267,6 +267,7 @@ class Application {
     this.rdpHTTPApp = new RDPController(this.logger);
   }
 
+  //Main run function
   run = async () => {
     try {
       //Send authentication request
@@ -340,6 +341,8 @@ class Application {
     console.table(permIDDataTable["data"]);
   };
 }
+
+// ---------------- Main Function ---------------------------------------- //
 
 //Parsing command line arguments
 const flags = parse(Deno.args, {
