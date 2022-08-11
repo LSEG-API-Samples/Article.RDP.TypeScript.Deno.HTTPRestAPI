@@ -78,57 +78,32 @@ For more detail regarding the Refinitiv Data Platform, please see the following 
 - [Quick Start](https://developers.refinitiv.com/en/api-catalog/refinitiv-data-platform/refinitiv-data-platform-apis/quick-start) page.
 - [Tutorials](https://developers.refinitiv.com/en/api-catalog/refinitiv-data-platform/refinitiv-data-platform-apis/tutorials) page.
 
-## <a id="project_structure"></a> Project structure
+## <a id="project_structure"></a> Project Structure Overview
 
-This example project is a TypeScript console application that login to the RDP platform, then requests the Chain data and PermID information from the RDP Pricing-Chain and Symbology services respectively. The project structure is as follows:
+This example project is a TypeScript console application that login to the RDP platform, then requests the Chain data and PermID information from the RDP Pricing-Chain and Symbology services respectively. The project source code are as follows:
 
-```
-.
-├── .devcontainer
-│   ├── .env.devcontainer.example
-│   └── devcontainer.json
-├── .dockerignore
-├── .env.example
-├── .gitignore
-├── .vscode
-│   └── settings.json
-├── Dockerfile
-├── LICENSE.md
-├── README.md
-├── images
-└── src
-    ├── main.ts
-    └── rdp_types.ts
-```
-* src/main.ts: The main console application.
+* src/main.ts: The main console application class.
+* src/rdp_https.ts: The main RDP HTTP operations class.
 * src/rdp_types.ts: The Type Aliases file.
 
-### <a id="ts_main_file"></a>Example Code Main Application
+### <a id="ts_main_file"></a>Main Application Code Introduction
 
-The ```src/main.ts``` file is the main application class. It receives user input for RDP credentials, operates HTTP request-response messages with the RDP services, and display data in a console.
+Let me start by explaining the ```main.ts``` file code overview. It is the main application class that receives a user input for RDP credentials, gets the data from the RDP services, and displays data in a console. The file contains ```Application``` class that manages all application logic such as receiving user input credentials, chain symbol name, format, and display data.
 
 The overview code structure of the file is shown below.
 
 ```
 // main.ts
 
-// A Class that handles all HTTP operations.
-class RDPController {
-    //All HTTP operations with RDP services
-    authenticationRDP = async (...) => {
-        //Send HTTP request to RDP authentication (v1) service.
-    }
-    ...
-}
 
 // Main Application Logic class
 class Application {
    
     run = async () => {
          //Get RDP authentication, get and display data from RDP.
-    }
+    };
     ...
-}
+};
 
 // ---------------- Main Function ---------------------------------------- //
 
@@ -137,11 +112,27 @@ const app = new Application(...);
 app.run();
 
 ```
-- The ```RDPController``` class manages all HTTP operations between the application and RDP services (authentication, pricing, symbology)
-- The ```Application``` class manages all application logic such as receiving user input credentials, chain symbol name, format and display data.
+### <a id="ts_rdp_http_file"></a>RDP HTTP Class Code Introduction
 
+Now let me turn to the ```rdp_https.ts``` file which is the main RDP HTTP operations class. It manages all request-response messages between the application and the RDP services (authentication, pricing, symbology). 
 
-### <a id="ts_type_aliases"></a>Example Code Type Aliases
+The overview code structure of the file is shown below.
+
+```
+// rdp_https.ts
+
+// A Class that handles all HTTP operations.
+export class RDPController {
+  ...
+  // Send HTTP Post request to get Access Token (Password Grant and Refresh Grant) from RDP Auth Service
+  authenticationRDP = async (...) => {
+    ...
+  };
+  ...
+};
+```
+
+### <a id="ts_type_aliases"></a>RDP Type Aliases Code Introduction
 
 Type Aliases is one of [TypeScript Object Types](https://www.typescriptlang.org/docs/handbook/2/objects.html) that helps developers type-checking their variables and data in the implementation time to avoid data type errors in a final JavaScript application. 
 
@@ -175,10 +166,11 @@ export type RDP_ReqSymbology_Type = {
 
 ...
 ```
+That covers the classes and project structure overview.
 
 ## <a id="rdp_workflow"></a>RDP APIs Application Workflow
 
-Refinitiv Data Platform entitlement check is based on OAuth 2.0 specification. The first step of an application workflow is to get a token from RDP Auth Service, which will allow access to the protected resource, i.e. data REST API. 
+Now, what about the API workflow? Refinitiv Data Platform entitlement check is based on OAuth 2.0 specification. The first step of an application workflow is to get a token from RDP Auth Service, which will allow access to the protected resource, i.e. data REST API. 
 
 The API requires the following access credential information:
 - Username: The username. 
@@ -196,48 +188,21 @@ Next, after the application received the Access Token (and authorization token) 
 
 ## <a id="rdp_authen"></a>RDP APIs Authentication
 
+Let’s start with the authentication source code implementation in more detail with Deno.
+
 ### Initialize Code
 
-Firstly, we import and crate all necessary types, objects, and variables for the API endpoints in the main application ```main.ts``` file. 
+Firstly, we import and crate all necessary types, objects, and variables for the API endpoints in the main application files. 
 
 ```
-// main.ts
+// rdp_https.ts
 
 import {
   RDP_AuthToken_Type
 } from "./rdp_types.ts";
 
 // A Class that handles all HTTP operations.
-class RDPController {
-  //Set Up HTTP APIs URLs
-  readonly rdpServer: string = Deno.env.get("RDP_BASE_URL") ||
-    "https://api.refinitiv.com";
-  readonly rdpAuthURL: string = Deno.env.get("RDP_AUTH_URL") ||
-    "/auth/oauth2/v1/token";
-  
-  constructor(logger: any) {
-  }
-}
-```
-
-You may noticed that the code imports types from ```rdp_types.ts``` file directly from the relative path (```import {RDP_AuthToken_Type} from "./rdp_types.ts";```). It supports the absolute path and HTTPS URLs too.
-
-The API endpoints  will be assigned to the application at run time with the environment variable. Deno lets developers access environment variable via ```Deno.env``` object. Please note that access to environment variables is only possible if the Deno process is running with **--allow-env* env var permissions flag.
-
-Secondly, the application receives RDP credentials, chain symbol, and number of item to get the PermID data via command line arguments. Deno supports command line arguments parsing with the ```Deno.args``` object and ```std/flags``` module ([flags API doc](https://deno.land/std@0.150.0/flags)). The code get command line arguments and send them to the ```Application``` class.
-
-```
-// main.ts
-
-// Deno STD libraries
-import { parse } from "https://deno.land/std@0.150.0/flags/mod.ts";
-
-import {
-  RDP_AuthToken_Type
-} from "./rdp_types.ts";
-
-// A Class that handles all HTTP operations.
-class RDPController {
+export class RDPController {
   //Set Up HTTP APIs URLs
   readonly rdpServer: string = Deno.env.get("RDP_BASE_URL") ||
     "https://api.refinitiv.com";
@@ -247,6 +212,65 @@ class RDPController {
   constructor() {
   }
 }
+```
+
+And import the ```RDPController``` class to ```main.ts``` file with the necessary variables and object.
+
+```
+// main.ts
+
+// Import RDPController class for HTTP operations
+import { RDPController } from "./rdp_https.ts";
+
+// Importing Types
+import {
+  RDP_AuthToken_Type
+} from "./rdp_types.ts";
+
+// Main Application Logic class
+class Application {
+
+  //RDP Token Auth object
+  rdpAuthObj: RDP_AuthToken_Type = {
+    access_token: "",
+    refresh_token: "",
+    expires_in: "",
+    scope: "",
+    token_type: "",
+  };
+
+  //RDP HTTP Controller class
+  rdpHTTPApp: RDPController;
+
+  constructor() {
+  }
+
+  run = async () => {
+    //Get RDP authentication, get and display data from RDP.
+  };
+
+}
+...
+```
+You may be noticed that the code imports types and class files directly from the relative path using ES Modules syntax. It supports the absolute path and HTTPS URLs too.
+
+The API endpoints are assigned to the application at run time with the environment variable. Deno lets developers access environment variables via ```Deno.env``` object. Please note that access to environment variables is only possible if the Deno process is running with **--allow-env* env var permissions flag.
+
+My next point is command line arguments for RDP credentials, chain symbol, and a number of items to get the PermID data. Deno supports command line arguments parsing with the ```Deno.args``` object and ```std/flags``` module ([flags API doc](https://deno.land/std@0.150.0/flags)). The code gets command line arguments and send them to the ```Application``` class of the ```main.ts``` file.
+
+```
+// main.ts
+
+// Deno STD libraries
+import { parse } from "https://deno.land/std@0.150.0/flags/mod.ts";
+
+// Import RDPController class for HTTP operations
+import { RDPController } from "./rdp_https.ts";
+
+// Importing Types
+import {
+  RDP_AuthToken_Type
+} from "./rdp_types.ts";
 
 // Main Application Logic class
 class Application {
@@ -273,13 +297,12 @@ class Application {
     this.itemName = itemname;
     this.limit = limit;
 
-
     this.rdpHTTPApp = new RDPController();
   }
   
-   //Main run function
+  //Main run function
   run = async () => {
-  }
+  };
 }
 
 // ---------------- Main Function ---------------------------------------- //
@@ -301,15 +324,12 @@ const app = new Application(
 app.run();
 ```
 
-### Sending Authentication Request
+### Sending Authentication Request with Fetch API
 
-Then we create a function named ```authenticationRDP``` in ```RDPController``` class to send a login request message to the RDP Auth Token service. The function creates the authentication request message as a form *x-www-form-urlencoded* format and then sends it to the RDP via native Fetch API as an HTTP POST message.
+That brings us back to the ```rdp_https.ts``` that sends and receives HTTP messages with RDP APIs. We create a function named ```authenticationRDP``` in a file to send a login request message to the RDP Auth Token service. The function creates the authentication request message as a form *x-www-form-urlencoded* format and then sends it to the RDP via native Fetch API as an HTTP POST message.
 
 ```
-// main.ts
-
-// Deno STD libraries
-import { parse } from "https://deno.land/std@0.150.0/flags/mod.ts";
+// rdp_https.ts
 
 import {
   RDP_AuthToken_Type
@@ -323,8 +343,7 @@ class RDPController {
   readonly rdpAuthURL: string = Deno.env.get("RDP_AUTH_URL") ||
     "/auth/oauth2/v1/token";
   
-  constructor(logger: any) {
-  }
+  constructor() { }
   // Send HTTP Post request to get Access Token (Password Grant and Refresh Grant) from RDP Auth Service
   authenticationRDP = async (
     username: string,
@@ -349,7 +368,7 @@ class RDPController {
     let authReqMsg = "";
     //Init Authentication Request Message and First Login scenario
     authReqMsg = `username=${username}&client_id=${client_id}&password=${password}&scope=${scope}&grant_type=password&takeExclusiveSignOnControl=${takeExclusiveSignOnControl}`;
-
+   
     ...
 
     // Send HTTP Request
@@ -370,12 +389,31 @@ class RDPController {
     return await response.json();
   };
 }
+```
+
+Next, call this ```RDPController.authenticationRDP()``` function in ```main.ts``` file with the RDP credentials that receive from user input. If the authentication success, set the authentication information to the RDP authentication object (as ```RDP_AuthToken_Type``` type) for later use. If the authentication fails, print the error messages and exit the process.
+
+```
+// main.ts
 
 // Main Application Logic class
 class Application {
   
   ...
 
+  //RDP Token Auth object
+  rdpAuthObj: RDP_AuthToken_Type = {
+    access_token: "",
+    refresh_token: "",
+    expires_in: "",
+    scope: "",
+    token_type: "",
+  };
+
+  //RDP HTTP Controller class
+  rdpHTTPApp: RDPController;
+  
+  //Main run function
   run = async () => {
     try {
       //Send authentication request
@@ -402,7 +440,17 @@ class Application {
 app.run();
 ```
 
+That’s all I have to say about the authenticaion part.
 
+## <a id="rdp_get_data"></a>Unit Testing for RDP APIs Data Request
+
+That brings us to requesting the RDP APIs data. All subsequent REST API calls use the Access Token via the *Authorization* HTTP request message header as shown below to get the data. 
+- Header: 
+    * Authorization = ```Bearer <RDP Access Token>```
+
+Please notice *the space* between the ```Bearer``` and ```RDP Access Token``` values.
+
+The application then creates a request message in a JSON message format or URL query parameter based on the interested service and sends it as an HTTP request message to the Service Endpoint. Developers can get RDP APIs the Service Endpoint, HTTP operations, and parameters from Refinitiv Data Platform's [API Playground page](https://api.refinitiv.com/) - which is an interactive documentation site developers can access once they have a valid Refinitiv Data Platform account.
 
 ## <a id="prerequisite"></a>Prerequisite
 This demo project requires the following dependencies.
