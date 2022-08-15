@@ -93,7 +93,7 @@ export class RDPController {
   };
 
   // Send Authentication Revoke Request message to RDP Auth Service
-  revokeAuthenticaion = async (client_id: string, access_token: string) => {
+  revokeAuthentication = async (client_id: string, access_token: string) => {
     if (client_id.length === 0 || access_token.length === 0) {
       throw new Error("Received invalid (None or Empty) arguments");
     }
@@ -166,6 +166,11 @@ export class RDPController {
 
   // Request Symbology Lookup Data from RDP Symbology Lookup Service
   getSymbology = async (symbols: string[], access_token: string) => {
+
+    if (symbols.length === 0 || access_token.length === 0) {
+      throw new Error("Received invalid (None or Empty) arguments");
+    }
+
     const symbologyURL = `${this.rdpServer}${this.rdpSymbology}`;
 
     console.log(`Requesting PermID Data from ${symbologyURL}`);

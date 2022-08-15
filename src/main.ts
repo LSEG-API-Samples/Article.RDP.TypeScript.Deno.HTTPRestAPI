@@ -50,14 +50,14 @@ class Application {
     username: string,
     password: string,
     clientid: string,
-    itemname: string,
+    itemName: string,
     limit: number,
     debug: boolean,
   ) {
     this.username = username;
     this.password = password;
     this.clientid = clientid;
-    this.itemName = itemname;
+    this.itemName = itemName;
     this.limit = limit;
 
     this.logger = pino({ level: debug ? "debug" : "info" });
@@ -103,7 +103,7 @@ class Application {
       this.displayPermID(permIDData);
 
       //Send revoke authentication request
-      await this.rdpHTTPApp.revokeAuthenticaion(
+      await this.rdpHTTPApp.revokeAuthentication(
         this.clientid,
         this.rdpAuthObj.access_token,
       );

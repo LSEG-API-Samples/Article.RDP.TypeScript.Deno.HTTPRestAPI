@@ -88,21 +88,81 @@ This example project is a TypeScript console application that login to the RDP p
 
 ### <a id="ts_main_file"></a>Main Application Code Introduction
 
-Let me start by explaining the ```main.ts``` file code overview. It is the main application class that receives a user input for RDP credentials, gets the data from the RDP services, and displays data in a console. The file contains ```Application``` class that manages all application logic such as receiving user input credentials, chain symbol name, format, and display data.
+Let me start by explaining the ```main.ts``` file code overview. It is the main application class that receives a user input for RDP credentials and chain symbol name. Then it make an authentication and get data the RDP RDP services, and displays that data in a console. The file contains ```Application``` class that manages all application logic such as receiving user input information, format and display data.
 
 The overview code structure of the file is shown below.
 
 ```
 // main.ts
 
+// Import RDPController class for HTTP operations
+import { RDPController } from "./rdp_https.ts";
+
+// Importing Types
+import {
+  RDP_AuthToken_Type,
+  RDP_ResSymbology_Table_Type,
+} from "./rdp_types.ts";
 
 // Main Application Logic class
 class Application {
-   
-    run = async () => {
-         //Get RDP authentication, get and display data from RDP.
-    };
-    ...
+
+  //RDP Token Auth object
+  rdpAuthObj: RDP_AuthToken_Type = {
+    access_token: "",
+    refresh_token: "",
+    expires_in: "",
+    scope: "",
+    token_type: "",
+  };
+
+  //RDP HTTP Controller class
+  rdpHTTPApp: RDPController;
+
+  itemName: string;
+
+  //RDP Credentials
+  username: string;
+  password: string;
+  clientid: string;
+  limit: number;
+
+  constructor(
+    username: string,
+    password: string,
+    clientid: string,
+    itemName: string,
+    limit: number
+  ) {
+    this.username = username;
+    this.password = password;
+    this.clientid = clientid;
+    this.itemName = itemName;
+    this.limit = limit;
+
+    this.rdpHTTPApp = new RDPController();
+  }
+  
+  //Main run function
+  run = async () => {
+    //Get RDP authentication, get and display data from RDP.
+    try {
+      //Send authentication request
+      this.rdpAuthObj = await this.rdpHTTPApp.authenticationRDP(
+        this.username,
+        this.password,
+        this.clientid,
+        this.rdpAuthObj.refresh_token,
+      );
+      // Get RDP Data
+      ....
+    } catch (error) {
+      //console.log(error);
+      this.logger.error(error);
+      Deno.exit(1);
+    }
+  };
+  ...
 };
 
 // ---------------- Main Function ---------------------------------------- //
@@ -114,18 +174,35 @@ app.run();
 ```
 ### <a id="ts_rdp_http_file"></a>RDP HTTP Class Code Introduction
 
-Now let me turn to the ```rdp_https.ts``` file which is the main RDP HTTP operations class. It manages all request-response messages between the application and the RDP services (authentication, pricing, symbology). 
+Now let me turn to the ```rdp_https.ts``` file which is the main RDP HTTP operations class. It manages all request-response messages between the application and the RDP services (Authentication, Pricing, and Symbology). 
 
 The overview code structure of the file is shown below.
 
 ```
 // rdp_https.ts
 
+// Importing Types
+import {
+  RDP_AuthToken_Type,
+  RDP_reqAuthRevoke_Type,
+  RDP_ReqSymbology_Type,
+} from "./rdp_types.ts";
+
 // A Class that handles all HTTP operations.
 export class RDPController {
   ...
   // Send HTTP Post request to get Access Token (Password Grant and Refresh Grant) from RDP Auth Service
   authenticationRDP = async (...) => {
+    ...
+  };
+
+  // Request Chain Data from RDP Pricing Service
+  getChain = async (symbol: string, access_token: string) => {
+    ...
+  };
+
+  // Request Symbology Lookup Data from RDP Symbology Lookup Service
+  getSymbology = async (symbols: string[], access_token: string) => {
     ...
   };
   ...
@@ -188,7 +265,7 @@ Next, after the application received the Access Token (and authorization token) 
 
 ## <a id="rdp_authen"></a>RDP APIs Authentication
 
-Let’s start with the authentication source code implementation in more detail with Deno.
+Let’s start with the authentication source code implementation in more detail with Deno. Please note that we are focusing on the ```rdp_https.ts``` controller class here.
 
 ### Initialize Code
 
@@ -214,119 +291,17 @@ export class RDPController {
 }
 ```
 
-And import the ```RDPController``` class to ```main.ts``` file with the necessary variables and object.
+You may be noticed that the code imports Types (and class files) directly from the relative path using ES Modules syntax. Deno supports the absolute path and HTTPS URLs too.
 
-```
-// main.ts
+My next point is the environment variable which is use for setting the API endpoints at run time. Deno lets developers access environment variables via ```Deno.env``` object. Please note that access to environment variables is only possible if the Deno process is running with **--allow-env* env var permissions flag.
 
-// Import RDPController class for HTTP operations
-import { RDPController } from "./rdp_https.ts";
-
-// Importing Types
-import {
-  RDP_AuthToken_Type
-} from "./rdp_types.ts";
-
-// Main Application Logic class
-class Application {
-
-  //RDP Token Auth object
-  rdpAuthObj: RDP_AuthToken_Type = {
-    access_token: "",
-    refresh_token: "",
-    expires_in: "",
-    scope: "",
-    token_type: "",
-  };
-
-  //RDP HTTP Controller class
-  rdpHTTPApp: RDPController;
-
-  constructor() {
-  }
-
-  run = async () => {
-    //Get RDP authentication, get and display data from RDP.
-  };
-
-}
-...
-```
-You may be noticed that the code imports types and class files directly from the relative path using ES Modules syntax. It supports the absolute path and HTTPS URLs too.
-
-The API endpoints are assigned to the application at run time with the environment variable. Deno lets developers access environment variables via ```Deno.env``` object. Please note that access to environment variables is only possible if the Deno process is running with **--allow-env* env var permissions flag.
-
-My next point is command line arguments for RDP credentials, chain symbol, and a number of items to get the PermID data. Deno supports command line arguments parsing with the ```Deno.args``` object and ```std/flags``` module ([flags API doc](https://deno.land/std@0.150.0/flags)). The code gets command line arguments and send them to the ```Application``` class of the ```main.ts``` file.
-
-```
-// main.ts
-
-// Deno STD libraries
-import { parse } from "https://deno.land/std@0.150.0/flags/mod.ts";
-
-// Import RDPController class for HTTP operations
-import { RDPController } from "./rdp_https.ts";
-
-// Importing Types
-import {
-  RDP_AuthToken_Type
-} from "./rdp_types.ts";
-
-// Main Application Logic class
-class Application {
-  //RDP HTTP Controller class
-  rdpHTTPApp: RDPController;
-
-  itemName: string;
-  //RDP Credentials
-  username: string;
-  password: string;
-  clientid: string;
-  limit: number;
-
-  constructor(
-    username: string,
-    password: string,
-    clientid: string,
-    itemname: string,
-    limit: number
-  ) {
-    this.username = username;
-    this.password = password;
-    this.clientid = clientid;
-    this.itemName = itemname;
-    this.limit = limit;
-
-    this.rdpHTTPApp = new RDPController();
-  }
-  
-  //Main run function
-  run = async () => {
-  };
-}
-
-// ---------------- Main Function ---------------------------------------- //
-
-//Parsing command line arguments
-const flags = parse(Deno.args, {
-  string: ["username", "password", "clientid", "chainric"],
-  default: { chainric: ".AV.O", limit: 10 },
-});
-
-const app = new Application(
-  flags.username,
-  flags.password,
-  flags.clientid,
-  flags.chainric,
-  flags.limit as number,
-);
-// Running the application
-app.run();
-```
+You can find more detail about Deno features above from the following resources:
+* [Deno: Importing & Exporting example](https://examples.deno.land/import-export)
+* [Deno: Environment Variables example](https://examples.deno.land/environment-variables)
 
 ### Sending Authentication Request with Fetch API
 
-That brings us back to the ```rdp_https.ts``` that sends and receives HTTP messages with RDP APIs. We create a function named ```authenticationRDP``` in a file to send a login request message to the RDP Auth Token service. The function creates the authentication request message as a form *x-www-form-urlencoded* format and then sends it to the RDP via native Fetch API as an HTTP POST message.
+That brings us to the ```rdp_https.ts``` that sends and receives HTTP messages with RDP APIs. We create a function named ```authenticationRDP``` in a file to send a login request message to the RDP Auth Token service. The function creates the authentication request message as a form *x-www-form-urlencoded* format and then sends it to the RDP via native Fetch API as an HTTP POST message.
 
 ```
 // rdp_https.ts
@@ -391,58 +366,11 @@ class RDPController {
 }
 ```
 
-Next, call this ```RDPController.authenticationRDP()``` function in ```main.ts``` file with the RDP credentials that receive from user input. If the authentication success, set the authentication information to the RDP authentication object (as ```RDP_AuthToken_Type``` type) for later use. If the authentication fails, print the error messages and exit the process.
+If the authentication success, the function return the authentication information (*access token*, *refresh token*, etc.) as JSON message (with ```RDP_AuthToken_Type``` type) to the caller. If the authentication fails, throws the errors as an exception event.
 
-```
-// main.ts
+That’s all I have to say about the authentication part.
 
-// Main Application Logic class
-class Application {
-  
-  ...
-
-  //RDP Token Auth object
-  rdpAuthObj: RDP_AuthToken_Type = {
-    access_token: "",
-    refresh_token: "",
-    expires_in: "",
-    scope: "",
-    token_type: "",
-  };
-
-  //RDP HTTP Controller class
-  rdpHTTPApp: RDPController;
-  
-  //Main run function
-  run = async () => {
-    try {
-      //Send authentication request
-      this.rdpAuthObj = await this.rdpHTTPApp.authenticationRDP(
-        this.username,
-        this.password,
-        this.clientid,
-        this.rdpAuthObj.refresh_token,
-      );
-
-      //Authentication success
-    } catch (error) {
-      console.log(error);
-      Deno.exit(1);
-    }
-  };
-
-}
-
-// ---------------- Main Function ---------------------------------------- //
-
-...
-// Running the application
-app.run();
-```
-
-That’s all I have to say about the authenticaion part.
-
-## <a id="rdp_get_data"></a>Unit Testing for RDP APIs Data Request
+## <a id="rdp_get_data"></a>Requesting RDP APIs Data
 
 That brings us to requesting the RDP APIs data. All subsequent REST API calls use the Access Token via the *Authorization* HTTP request message header as shown below to get the data. 
 - Header: 
@@ -451,6 +379,305 @@ That brings us to requesting the RDP APIs data. All subsequent REST API calls us
 Please notice *the space* between the ```Bearer``` and ```RDP Access Token``` values.
 
 The application then creates a request message in a JSON message format or URL query parameter based on the interested service and sends it as an HTTP request message to the Service Endpoint. Developers can get RDP APIs the Service Endpoint, HTTP operations, and parameters from Refinitiv Data Platform's [API Playground page](https://api.refinitiv.com/) - which is an interactive documentation site developers can access once they have a valid Refinitiv Data Platform account.
+
+This project covers the following the RDP APIs Services:
+- Pricing Chain ```/data/pricing/chains/v1``` operation.
+- Discovery Symbology Service ```/discovery/symbology/v1/lookup``` endpoint that navigates between identifiers.
+
+## <a id="rdp_chain"></a>RDP APIs Pricing Chain Service
+
+I will begin with the Chain service. The RDP ```/data/pricing/chains/<version>``` endpoint is a HTTP REST API service that returns all constituents of a Chain symbol. 
+
+### Sending Chain Request
+
+I will begin by creating a function named ```getChain()``` in the HTTP Controller  ```rdp_https.ts``` file. This function receives a Chain symbol and the access token information to create a HTTP URL with a symbol query parameter as follows
+
+```
+// rdp_https.ts
+
+...
+
+// A Class that handles all HTTP operations.
+class RDPController {
+  //Set Up HTTP APIs URLs
+  readonly rdpServer: string = Deno.env.get("RDP_BASE_URL") ||
+    "https://api.refinitiv.com";
+  readonly rdpChainURL: string = Deno.env.get("RDP_CHAIN_URL") ||
+    "/data/pricing/chains/v1";
+  
+  ...
+
+  // Request Chain Data from RDP Pricing Service
+  getChain = async (symbol: string, access_token: string) => {
+    
+    const param = { universe: symbol };
+    const chainURL = `${this.rdpServer}${this.rdpChainURL}/?${
+      new URLSearchParams(param).toString()
+    }`;
+
+    console.log(`Requesting Chain Data from ${chainURL}`);
+    ...
+  };
+  ...
+}
+```
+
+Then sends it to the RDP Chain service as HTTP *GET* operation.
+
+```
+// rdp_https.ts
+
+...
+
+// A Class that handles all HTTP operations.
+class RDPController {
+
+  ...
+
+  // Request Chain Data from RDP Pricing Service
+  getChain = async (symbol: string, access_token: string) => {
+    
+    ...
+    // Send HTTP Request
+    const response: Response = await fetch(chainURL, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${access_token}`,
+      },
+    });
+
+    if (!response.ok) {
+      const statusText: string = await response.text();
+      throw new Error(
+        `Get Chain HTTP error!: ${response.status} ${statusText}`,
+      );
+    }
+    console.log("Expand Chain data success.");
+    //Parse response to JSON
+    return await response.json();
+  };
+  ...
+}
+```
+
+If the request is successful, the code sends data back to a caller as a JSON message format. But if the request is failed, it throws an exception with error detail to a caller.
+
+Example Chain response message:
+
+```
+{
+  "universe": {
+    "ric": "0#.SETI",
+    "displayName": "SET INDEX",
+    "serviceName": "ELEKTRON_DD"
+  },
+  "data": {
+    "constituents": [
+      "2S.BK",
+      "3K-BAT.BK",
+      "7UP.BK",
+      "A.BK",
+      "AAV.BK",
+      ...
+      "ZEN.BK"
+    ]
+  }
+}
+```
+That covers the Chain data part. 
+
+## <a id="rdp_symbology"></a>RDP APIs Symbology Discovery Service
+
+### Sending Symbology Request to get PermID
+
+This example converts a symbol from the RIC Code identifier to [Permanent Identifiers (PermIDs)](https://www.refinitiv.com/en/products/permid-data-management), [LEI](https://en.wikipedia.org/wiki/Legal_Entity_Identifier) using the RDP the Discovery Symbology Service. I will begin by importing the ```PDP_Symbology_Req_Type``` Type Aliases for the Symbology JSON request message, and creating a function named ```getSymbology()``` in the HTTP Controller  ```rdp_https.ts``` file. 
+
+The steps to create the JSON request message is shown below.
+
+```
+// rdp_https.ts
+
+// Importing Types
+import {
+  RDP_AuthToken_Type,
+  RDP_reqAuthRevoke_Type,
+  RDP_ReqSymbology_Type,
+} from "./rdp_types.ts";
+
+...
+
+// A Class that handles all HTTP operations.
+class RDPController {
+
+  ...
+
+  // Request Symbology Lookup Data from RDP Symbology Lookup Service
+  getSymbology = async (symbols: string[], access_token: string) => {
+    ...
+    const symbologyURL = `${this.rdpServer}${this.rdpSymbology}`;
+
+    console.log(`Requesting PermID Data from ${symbologyURL}`);
+    // Create Symbology Request Message
+    const payload: RDP_ReqSymbology_Type = {
+      "from": [{
+        "identifierTypes": [
+          "RIC",
+        ],
+        "values": symbols,
+      }],
+      "to": [{
+        "objectTypes": [
+          "organization",
+        ],
+        "identifierTypes": [
+          "PermID",
+        ],
+      }],
+      "reference": [
+        "name",
+        "status",
+        "classification",
+      ],
+      "type": "auto",
+    };
+    ....
+  };
+  ...
+}
+```
+Then sends it to the RDP Chain service as HTTP *POST* operation.
+
+```
+// rdp_https.ts
+
+...
+
+// A Class that handles all HTTP operations.
+class RDPController {
+
+  ...
+
+  // Request Symbology Lookup Data from RDP Symbology Lookup Service
+  getSymbology = async (symbols: string[], access_token: string) => {
+
+    ...
+
+    // Send HTTP Request
+    const response: Response = await fetch(symbologyURL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${access_token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const statusText: string = await response.text();
+      throw new Error(
+        `Get Chain HTTP error!: ${response.status} ${statusText}`,
+      );
+    }
+    console.log("Get Symbology Data success.");
+    //Parse response to JSON
+    return await response.json();
+  };
+  ...
+}
+```
+### Displaying Symbology Data
+
+The next step is displaying PermIDs data in a readable format. The application uses the [console.table()](https://developer.mozilla.org/en-US/docs/Web/API/console/table) function to print data to a console in a tabular format.
+
+Let's start by creating the new Type Aliases for the Symbology table object named ```RDP_ResSymbology_Table_Type```. This object keeps the necessary output data which are ```RIC```, and ```PermID``` fields from the response JSON message.
+
+```
+//rdp_types.ts
+
+// Type for RDP Symbology Lookup PermIDs Valid Response message
+export type RDP_ResSymbology_Table_Type = {
+  data: RDP_ResSymbology_PermID_Type[];
+};
+
+// sub-Type for RDP Symbology Lookup PermIDs data
+type RDP_ResSymbology_PermID_Type = {
+  RIC: string;
+  PermID: string;
+};
+```
+
+Finally, we create a ```displayPermID()``` function in a ```main.ts``` file to construct the ```permIDDataTable``` object and then passes it to the ```console.table()``` function. 
+
+```
+// main.ts
+
+// Import RDPController class for HTTP operations
+import { RDPController } from "./rdp_https.ts";
+
+// Importing Types
+import {
+  RDP_AuthToken_Type,
+  RDP_ResSymbology_Table_Type,
+} from "./rdp_types.ts";
+
+// Main Application Logic class
+class Application {
+
+  ....
+
+  //Main run function
+  run = async () => {
+    try {
+      ....
+      //Send PermIDs data request
+      const permIDData = await this.rdpHTTPApp.getSymbology(
+        chainData["data"]["constituents"].slice(0, this.limit),
+        this.rdpAuthObj.access_token,
+      );
+
+      //Displaying PermIDs data
+      this.displayPermID(permIDData);
+    } catch (error) {
+      console.log(error);
+      Deno.exit(1);
+    }
+  };
+
+  // Convert PermIDs JSON data to be a table
+  displayPermID = (permIDJSON: any) => {
+    const permIDData = permIDJSON["data"];
+
+    const permIDDataTable: RDP_ResSymbology_Table_Type = { data: [] };
+    let _output: string;
+
+    permIDData.forEach((permid: any) => {
+      if (permid["output"].length !== 0) {
+        _output = permid["output"][0]["value"];
+      } else if (permid["errors"]) {
+        _output = permid["errors"][0];
+      } else {
+        _output = "No PermID information";
+      }
+
+      permIDDataTable["data"].push({
+        RIC: permid["input"][0]["value"],
+        PermID: _output,
+      });
+    });
+
+    console.table(permIDDataTable["data"]);
+  };
+}
+...
+```
+The ```console.table()``` result with the ```permIDDataTable``` object is as follows:
+
+![figure-2](images/03_permid_table.png "PermID as table")
+
+That covers the Symbology data conversion part. 
+
+## Using NPM module with Deno
 
 ## <a id="prerequisite"></a>Prerequisite
 This demo project requires the following dependencies.

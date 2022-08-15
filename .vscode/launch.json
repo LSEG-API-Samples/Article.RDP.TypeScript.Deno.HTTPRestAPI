@@ -12,7 +12,7 @@
             "cwd": "${workspaceFolder}",
             "runtimeExecutable": "/bin/deno",
             "runtimeArgs": ["run", "--allow-env", "--allow-net"],
-			"args": ["--username","${env:RDP_USERNAME}","--password","${env:RDP_PASSWORD}","--clientid","${env:RDP_APP_KEY}","--chainric","0#.HSI"],
+			"args": ["--username","${env:RDP_USERNAME}","--password","${env:RDP_PASSWORD}","--clientid","${env:RDP_APP_KEY}"],
             "outputCapture": "std"
         }
     ]
