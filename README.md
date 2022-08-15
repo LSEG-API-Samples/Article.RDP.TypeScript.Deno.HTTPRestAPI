@@ -32,7 +32,7 @@ Even though both Deno and Node.js are built on Google's V8 JavaScript engine, De
 - Ships only a single executable file (```Deno```). 
 - Deno executable file takes on the role of both runtime and package manager. It supports only URLs for loading local or remote dependencies, similar to browsers, so the ```package.json``` file and package manager (like Node.js's ```npm```) is not required.
 - Supports TypeScript out of the box.
-- Supports native [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API).
+- Supports Web [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) natively.
 - Supports only [ES Modules](https://tc39.es/ecma262/#sec-modules) (```import x from y```) like browsers where Node.js supports both ES Modules and [CommonJS](https://www.commonjs.org/) (```require()```).
 - All [async actions](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function) in Deno return a [promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise).
 - Comes with a set of standard modules such as Base64, command line arguments parsing, JSON, dotenv, file system, HTTP, etc that can be loaded via URLs on the fly.
@@ -88,7 +88,7 @@ This example project is a TypeScript console application that login to the RDP p
 
 ### <a id="ts_main_file"></a>Main Application Code Introduction
 
-Let me start by explaining the ```main.ts``` file code overview. It is the main application class that receives a user input for RDP credentials and chain symbol name. Then it make an authentication and get data the RDP RDP services, and displays that data in a console. The file contains ```Application``` class that manages all application logic such as receiving user input information, format and display data.
+Let me start by explaining the ```main.ts``` file code overview. It is the main application class that receives a user input for RDP credentials and a chain symbol name. Then it authenticates and gets data from the RDP RDP services, and displays that data in a console. The file contains the ```Application``` class that manages all application logic such as receiving user input information, format, and display data.
 
 The overview code structure of the file is shown below.
 
@@ -293,7 +293,7 @@ export class RDPController {
 
 You may be noticed that the code imports Types (and class files) directly from the relative path using ES Modules syntax. Deno supports the absolute path and HTTPS URLs too.
 
-My next point is the environment variable which is use for setting the API endpoints at run time. Deno lets developers access environment variables via ```Deno.env``` object. Please note that access to environment variables is only possible if the Deno process is running with **--allow-env* env var permissions flag.
+My next point is the environment variable which is used for setting the API endpoints at run time. Deno lets developers access environment variables via the ```Deno.env``` object. Please note that access to environment variables is only possible if the Deno process is running with the **--allow-env* env var permissions flag.
 
 You can find more detail about Deno features above from the following resources:
 * [Deno: Importing & Exporting example](https://examples.deno.land/import-export)
@@ -366,7 +366,7 @@ class RDPController {
 }
 ```
 
-If the authentication success, the function return the authentication information (*access token*, *refresh token*, etc.) as JSON message (with ```RDP_AuthToken_Type``` type) to the caller. If the authentication fails, throws the errors as an exception event.
+If the authentication is successful, the function returns the authentication information (*access token*, *refresh token*, etc.) as a JSON message (with ```RDP_AuthToken_Type``` type) to the caller. If the authentication fails, throws the errors as an exception event.
 
 That’s all I have to say about the authentication part.
 
@@ -386,11 +386,11 @@ This project covers the following the RDP APIs Services:
 
 ## <a id="rdp_chain"></a>RDP APIs Pricing Chain Service
 
-I will begin with the Chain service. The RDP ```/data/pricing/chains/<version>``` endpoint is a HTTP REST API service that returns all constituents of a Chain symbol. 
+I will begin with the Chain service. The RDP ```/data/pricing/chains/<version>``` endpoint is an HTTP REST API service that returns all constituents of a Chain symbol.
 
 ### Sending Chain Request
 
-I will begin by creating a function named ```getChain()``` in the HTTP Controller  ```rdp_https.ts``` file. This function receives a Chain symbol and the access token information to create a HTTP URL with a symbol query parameter as follows
+I will begin by creating a function named ```getChain()``` in the HTTP Controller  ```rdp_https.ts``` file. This function receives a Chain symbol and the access token information to create an HTTP URL with a symbol query parameter as follows
 
 ```
 // rdp_https.ts
@@ -422,7 +422,7 @@ class RDPController {
 }
 ```
 
-Then sends it to the RDP Chain service as HTTP *GET* operation.
+Then sends it to the RDP Chain service as an HTTP *GET* operation.
 
 ```
 // rdp_https.ts
@@ -461,7 +461,7 @@ class RDPController {
 }
 ```
 
-If the request is successful, the code sends data back to a caller as a JSON message format. But if the request is failed, it throws an exception with error detail to a caller.
+If the request is successful, the code sends data back to a caller in a JSON message format. But if the request is failed, it throws an exception with error detail to a caller.
 
 Example Chain response message:
 
@@ -493,7 +493,7 @@ That covers the Chain data part.
 
 This example converts a symbol from the RIC Code identifier to [Permanent Identifiers (PermIDs)](https://www.refinitiv.com/en/products/permid-data-management), [LEI](https://en.wikipedia.org/wiki/Legal_Entity_Identifier) using the RDP the Discovery Symbology Service. I will begin by importing the ```PDP_Symbology_Req_Type``` Type Aliases for the Symbology JSON request message, and creating a function named ```getSymbology()``` in the HTTP Controller  ```rdp_https.ts``` file. 
 
-The steps to create the JSON request message is shown below.
+The steps to create the JSON request message are shown below.
 
 ```
 // rdp_https.ts
@@ -546,7 +546,7 @@ class RDPController {
   ...
 }
 ```
-Then sends it to the RDP Chain service as HTTP *POST* operation.
+Then sends it to the RDP Chain service as an HTTP *POST* operation.
 
 ```
 // rdp_https.ts
