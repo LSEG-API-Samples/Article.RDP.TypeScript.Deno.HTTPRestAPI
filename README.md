@@ -677,7 +677,76 @@ The ```console.table()``` result with the ```permIDDataTable``` object is as fol
 
 That covers the Symbology data conversion part. 
 
-## Using NPM module with Deno
+## Using NPM modules with Deno
+
+My next point is using the npm modules with Deno. As I have mentioned earlier, Deno supports the ES Modules system only while Node.js supports both CommonJS and ES Modules. Their internal module systems also work differently. This makes Deno not support the [npm](https://www.npmjs.com/) package eco-system and its massive libraries *as-is*. Deno lets developers access **some npm packages** via the content delivery networks (CDNs) as the remote HTTP modules. The CDNs such as [esm.sh](https://esm.sh/), [Skypack.dev](https://www.skypack.dev/), and [UNPKG](https://unpkg.com/) provide Deno friendly npm packages in the ES Module format and support Deno integration. The example usage is as follows:
+
+```
+import React from "https://esm.sh/react";
+
+export default class A extends React.Component {
+  render() {
+    return <div></div>;
+  }
+}
+```
+Please note that **most Node.js and npm packages are still not compatible with Deno** even through the CDNs above. Deno team [just announced](https://deno.com/blog/changes#compatibility-with-node-and-npm) (as of August 2022) that they are working on improving Deno to be more compatible with npm packages. 
+
+You can find more detail about Deno and npm packages from the following Deno resources:
+* [Deno: Using npm/Node.js code document](https://deno.land/manual@v1.15.2/npm_nodejs)
+* [Deno: Packages from CDNs document](https://deno.land/manual@v1.15.2/npm_nodejs/cdns)
+* [Deno: Compatibility with Node and npm announcement](https://deno.com/blog/changes#compatibility-with-node-and-npm)
+
+I am demonstrating Deno and npm package integration with the [Pino](https://www.npmjs.com/package/pino) logger library.
+
+### Integrate Deno with NPM package
+
+[Pino](https://www.npmjs.com/package/pino) is a fast and small logger library for Node.js application. I am using this library to log debug information such as incoming and outgoing HTTP messages if user input **--debug** argument when running the application.
+
+I will begin by importing the following modules to the ```main.ts``` file:
+- [Deno:/flags​/mod.ts module](https://doc.deno.land/https://deno.land/std@0.120.0/flags/mod.ts): for parsing command line arguments
+- Pino library as remote HTTP modules via [esm.sh](https://esm.sh/) CDN.
+
+```
+// main.ts
+
+// Deno STD libraries
+import { parse } from "https://deno.land/std@0.150.0/flags/mod.ts";
+
+// NPM library for logging
+import pino from "https://esm.sh/pino";
+
+// Main Application Logic class
+class Application {
+}
+
+//Parsing command line arguments
+const flags = parse(Deno.args, {
+  string: ["username", "password", "clientid", "chainric"],
+  boolean: ["debug"],
+  default: { chainric: ".AV.O", limit: 10, debug: false },
+});
+
+if (
+  flags.username == null || flags.password == null || flags.clientid == null
+) {
+  console.log("Please input username, password, and clientid parameters");
+  Deno.exit(1);
+}
+
+const app = new Application(
+  flags.username,
+  flags.password,
+  flags.clientid,
+  flags.chainric,
+  flags.limit as number,
+  flags.debug,
+);
+// Running the application
+app.run();
+```
+
+
 
 ## <a id="prerequisite"></a>Prerequisite
 This demo project requires the following dependencies.
