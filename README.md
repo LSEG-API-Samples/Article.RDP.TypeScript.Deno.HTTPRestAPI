@@ -701,7 +701,7 @@ I am demonstrating Deno and npm package integration with the [Pino](https://www.
 
 ### Integrate Deno with NPM package
 
-[Pino](https://www.npmjs.com/package/pino) is a fast and small logger library for Node.js application. I am using this library to log debug information such as incoming and outgoing HTTP messages if user input **--debug** argument when running the application.
+[Pino](https://www.npmjs.com/package/pino) is a fast and small logger library for the Node.js application. I am using this library to log debug information such as incoming and outgoing HTTP messages if the user input **--debug** argument when running the application.
 
 I will begin by importing the following modules to the ```main.ts``` file:
 - [Deno:/flags​/mod.ts module](https://doc.deno.land/https://deno.land/std@0.120.0/flags/mod.ts): for parsing command line arguments
@@ -727,12 +727,7 @@ const flags = parse(Deno.args, {
   default: { chainric: ".AV.O", limit: 10, debug: false },
 });
 
-if (
-  flags.username == null || flags.password == null || flags.clientid == null
-) {
-  console.log("Please input username, password, and clientid parameters");
-  Deno.exit(1);
-}
+...
 
 const app = new Application(
   flags.username,
@@ -744,6 +739,117 @@ const app = new Application(
 );
 // Running the application
 app.run();
+```
+
+On the ```Application``` class side, uses the Pino logger to print response data from the RDP services.
+
+```
+// main.ts
+
+// NPM library for logging
+import pino from "https://esm.sh/pino";
+...
+// Main Application Logic class
+class Application {
+  logger: any;
+
+  constructor(
+    ...
+    debug: boolean,
+  ) {
+    ...
+    this.logger = pino({ level: debug ? "debug" : "info" });
+
+    this.rdpHTTPApp = new RDPController(this.logger);
+  }
+
+  //Main run function
+  run = async () => {
+    try {
+      //Send authentication request
+      this.rdpAuthObj = await this.rdpHTTPApp.authenticationRDP(
+        this.username,
+        this.password,
+        this.clientid,
+        this.rdpAuthObj.refresh_token,
+      );
+      this.logger.debug(JSON.stringify(this.rdpAuthObj));
+
+      //Send chain data request
+      const chainData = await this.rdpHTTPApp.getChain(
+        this.itemName,
+        this.rdpAuthObj.access_token,
+      );
+      this.logger.debug(chainData);
+
+     ...
+    }
+  };
+}
+
+```
+
+On the ```RDPController``` class of the ```rdp_https.ts``` side, gets a logger object from the main app to print debug data (if enabled).
+
+```
+// rdp_https.ts
+
+// A Class that handles all HTTP operations.
+export class RDPController {
+  //Logger
+  logger: any;
+
+  constructor(logger: any) {
+    this.logger = logger;
+  }
+
+  // Send HTTP Post request to get Access Token (Password Grant and Refresh Grant) from RDP Auth Service
+  authenticationRDP = async (
+    username: string,
+    password: string,
+    client_id: string,
+    refresh_token: string
+  ): Promise<RDP_AuthToken_Type> => {
+    ...
+    let authReqMsg = "";
+    //Init Authentication Request Message and First Login scenario
+    authReqMsg = `username=${username}&client_id=${client_id}&password=${password}&scope=${scope}&grant_type=password&takeExclusiveSignOnControl=${takeExclusiveSignOnControl}`;
+
+    this.logger.debug(
+      `RDPController:authenticationRDP(): Outgoing Request Message = ${authReqMsg}`,
+    );
+    ...
+  }
+}
+```
+
+The result of debug log is shown below.
+
+```
+$>deno run --allow-env --allow-net ./src/main.ts --username $RDP_USERNAME --password $RDP_PASSWORD --clientid $RDP_APP_KEY --debug
+Requesting Authentication Token from https://api.refinitiv.com/auth/oauth2/v1/token
+RDPController:authenticationRDP(): Outgoing Request Message = username=XXX&client_id=XXX&password=XXXX&scope=trapi&grant_type=password&takeExclusiveSignOnControl=true
+Authentication Granted
+{"access_token":"XXXX","refresh_token":"YYYYYY","expires_in":"600","scope":"ZZZZZ","token_type":"Bearer"}
+Requesting Chain Data from https://api.refinitiv.com/data/pricing/chains/v1/?universe=.AV.O
+Expand Chain data success.
+{
+  universe: { ric: ".AV.O", displayName: "TOP 25 BY VOLUME", serviceName: "ELEKTRON_DD" },
+  data: {
+    constituents: [
+      "ENDP.O", "BBIG.O", "BBBY.O",
+      "EAR.O",  "CRBP.O", "TTOO.O",
+      "ATHX.O", "SQQQ.O", "RDHL.O",
+      "TQQQ.O", "JCSE.O", "HGEN.O",
+      "FFIE.O", "GOEV.O", "GBOX.O",
+      "NBEV.O", "PDD.O",  "MULN.O",
+      "NEPT.O", "VS.O",   "ITRM.O",
+      "MEGL.O", "TYDE.O", "QQQ.O",
+      "GOCO.O"
+    ]
+  }
+}
+...
 ```
 
 

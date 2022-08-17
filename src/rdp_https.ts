@@ -58,7 +58,7 @@ export class RDPController {
     }
 
     const authenURL = `${this.rdpServer}${this.rdpAuthURL}`;
-    console.log(`Requesting Authenticaion Token from ${authenURL}`);
+    console.log(`Requesting Authentication Token from ${authenURL}`);
 
     let authReqMsg = "";
     //Init Authentication Request Message and First Login scenario
@@ -99,7 +99,7 @@ export class RDPController {
     }
 
     const authenURL = `${this.rdpServer}${this.rdpAuthRevokeURL}`;
-    console.log(`Requesting Authenticaion Revoke from ${authenURL}`);
+    console.log(`Requesting Authentication Revoke from ${authenURL}`);
 
     const authReqMsg: RDP_reqAuthRevoke_Type = {
       "token": access_token,
@@ -108,7 +108,7 @@ export class RDPController {
     const clientIDBase64: string = encode(`${client_id}:`);
 
     this.logger.debug(
-      `RDPController:revokeAuthenticaion(): Outgoing Request Message = ${
+      `RDPController:revokeAuthentication(): Outgoing Request Message = ${
         JSON.stringify(authReqMsg, null, 2)
       }`,
     );
