@@ -2,7 +2,7 @@
 // https://github.com/microsoft/vscode-dev-containers/tree/v0.202.5/containers/
 {
 	"name": "Deno Learning",
-	"image": "denoland/deno:alpine-1.24.1",
+	"image": "denoland/deno:alpine-1.24.3",
 	"runArgs": [
         "--env-file=.devcontainer/.env.devcontainer"
     ],

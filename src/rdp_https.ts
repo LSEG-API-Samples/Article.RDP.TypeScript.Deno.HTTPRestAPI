@@ -159,7 +159,7 @@ export class RDPController {
         `Get Chain HTTP error!: ${response.status} ${statusText}`,
       );
     }
-    console.log("Expand Chain data success.");
+    
     //Parse response to JSON
     return await response.json();
   };

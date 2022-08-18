@@ -58,7 +58,7 @@ Running code using Deno CLI (please noticed **--allow-net** flag to explicit ena
 deno run --allow-net http-server.ts
 ```
 
-This example project is focusing on Deno version 1.24.1. 
+This example project is focusing on Deno version 1.24.3. 
 
 ## <a id="whatis_rdp"></a>What is Refinitiv Data Platform (RDP) APIs?
 
@@ -453,7 +453,7 @@ class RDPController {
         `Get Chain HTTP error!: ${response.status} ${statusText}`,
       );
     }
-    console.log("Expand Chain data success.");
+  
     //Parse response to JSON
     return await response.json();
   };
@@ -677,7 +677,7 @@ The ```console.table()``` result with the ```permIDDataTable``` object is as fol
 
 That covers the Symbology data conversion part. 
 
-## Using NPM modules with Deno
+## <a id="deno_npm"></a>Using NPM modules with Deno
 
 My next point is using the npm modules with Deno. As I have mentioned earlier, Deno supports the ES Modules system only while Node.js supports both CommonJS and ES Modules. Their internal module systems also work differently. This makes Deno not support the [npm](https://www.npmjs.com/) package eco-system and its massive libraries *as-is*. Deno lets developers access **some npm packages** via the content delivery networks (CDNs) as the remote HTTP modules. The CDNs such as [esm.sh](https://esm.sh/), [Skypack.dev](https://www.skypack.dev/), and [UNPKG](https://unpkg.com/) provide Deno friendly npm packages in the ES Module format and support Deno integration. The example usage is as follows:
 
@@ -705,7 +705,7 @@ I am demonstrating Deno and npm package integration with the [Pino](https://www.
 
 I will begin by importing the following modules to the ```main.ts``` file:
 - [Deno:/flags​/mod.ts module](https://doc.deno.land/https://deno.land/std@0.120.0/flags/mod.ts): for parsing command line arguments
-- Pino library as remote HTTP modules via [esm.sh](https://esm.sh/) CDN.
+- Pino library as remote HTTP module via [esm.sh](https://esm.sh/) CDN.
 
 ```
 // main.ts
@@ -851,7 +851,38 @@ Expand Chain data success.
 }
 ...
 ```
+## <a id="devcontainer_json"></a>Setting A Devcontainer with Deno
 
+The main configuration file that tells VS Code how to access (or create) a devcontainer with a well-defined tool and runtime stack is named the ```devcontainer.json``` file. The dev container configuration is either located under ```.devcontainer/devcontainer.json``` or stored in a file named ```.devcontainer.json``` file (*note the dot-prefix*) in the root of the project.
+
+**Note**: Make sure to commit a ```.devcontainer``` folder to your version control system.
+
+A ```.devcontainer/devcontainer.json``` file for Deno development is as follows:
+
+```
+{
+	"name": "Deno HTTP REST Console",
+	"image": "denoland/deno:alpine-1.24.3",
+	"runArgs": [
+        "--env-file=.devcontainer/.env.devcontainer"
+    ],
+	"workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
+	"workspaceFolder": "/workspace",
+	"extensions": ["denoland.vscode-deno"],
+	"shutdownAction":"stopContainer"
+}
+
+```
+The detail of the configurations above are:
+- ```name```: A display name for the container.
+- ```image```: Pull "denoland/deno:alpine-1.24.3" Docker image from DockerHub [https://hub.docker.com/r/denoland/deno](https://hub.docker.com/r/denoland/deno) URL.
+- ```runArgs```: An array of [Docker CLI arguments](https://docs.docker.com/engine/reference/commandline/run/) that VS Code uses when running the container. I am setting the ```--env-file``` option that sets the container's environment variables via a file named *.env.devcontainer*.
+- ```workspaceMount```: Overrides the default local mount point for the workspace when the container is created. 
+- ```workspaceFolder```: Sets the default path that VS Code should open when connecting to the container. 
+- ```extensions```: Specify VS Code extension IDs that will be installed inside the container. I am setting the [Deno extension for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=denoland.vscode-deno) here.
+- ```shutdownAction```: set the VS Code stops the container when the editor window is closed/shut down.
+
+Please find more details about all devcontainer.json configuration parameters on the [VS Code - devcontainer.json reference](https://code.visualstudio.com/docs/remote/devcontainerjson-reference) page.
 
 
 ## <a id="prerequisite"></a>Prerequisite
@@ -867,6 +898,8 @@ Please contact your Refinitiv representative to help you to access the RDP accou
 ## How to Run
 
 ### <a id="devconainer_run"></a>Running as VS Code DevContainer
+
+**Docker Desktop/engine should be running prior to the next step.**
 
 1. Go to the project's *.devcontainer* folder and create a file name ```.env.devcontainer```  with the following content.
     ```

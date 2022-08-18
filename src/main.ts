@@ -84,6 +84,12 @@ class Application {
       );
       this.logger.debug(chainData);
 
+      //check if the constituents array is not empty
+      if(chainData["data"]["constituents"].length === 0) {
+        throw new Error(`Cannot expaind Chain data of ${this.itemName})`);
+      }
+
+      console.log("Expand Chain data success.");
       //check if limit argument is larger than actual chain data.
       if (this.limit > chainData["data"]["constituents"].length) {
         throw new Error(
@@ -146,7 +152,7 @@ class Application {
 const flags = parse(Deno.args, {
   string: ["username", "password", "clientid", "chainric"],
   boolean: ["debug"],
-  default: { chainric: ".AV.O", limit: 10, debug: false },
+  default: { chainric: "0#.SETI", limit: 10, debug: false },
 });
 
 if (
