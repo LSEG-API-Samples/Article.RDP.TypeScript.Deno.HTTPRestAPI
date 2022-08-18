@@ -792,12 +792,20 @@ A ```.devcontainer/devcontainer.json``` file for Deno development is as follows:
 {
 	"name": "Deno HTTP REST Console",
 	"image": "denoland/deno:alpine-1.24.3",
+	"customizations": {
+		// Configure properties specific to VS Code.
+		"vscode": {
+			"settings": {"deno.enable": true},
+			"extensions": [
+				"denoland.vscode-deno"
+			]
+		}
+	},
 	"runArgs": [
         "--env-file=.devcontainer/.env.devcontainer"
     ],
 	"workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
 	"workspaceFolder": "/workspace",
-	"extensions": ["denoland.vscode-deno"],
 	"shutdownAction":"stopContainer"
 }
 
@@ -805,10 +813,11 @@ A ```.devcontainer/devcontainer.json``` file for Deno development is as follows:
 The detail of the configurations above are:
 - ```name```: A display name for the container.
 - ```image```: Pull "denoland/deno:alpine-1.24.3" Docker image from DockerHub [https://hub.docker.com/r/denoland/deno](https://hub.docker.com/r/denoland/deno) URL.
+- ```customizations.vscode.settings```: Set *default* container specific settings.json values on container create to enable Deno extensions.
+- ```customizations.vscode.extensions```: Specify VS Code extension IDs that will be installed inside the container. I am setting the [Deno extension for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=denoland.vscode-deno) here.
 - ```runArgs```: An array of [Docker CLI arguments](https://docs.docker.com/engine/reference/commandline/run/) that VS Code uses when running the container. I am setting the ```--env-file``` option that sets the container's environment variables via a file named *.env.devcontainer*.
 - ```workspaceMount```: Overrides the default local mount point for the workspace when the container is created. 
 - ```workspaceFolder```: Sets the default path that VS Code should open when connecting to the container. 
-- ```extensions```: Specify VS Code extension IDs that will be installed inside the container. I am setting the [Deno extension for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=denoland.vscode-deno) here.
 - ```shutdownAction```: set the VS Code stops the container when the editor window is closed/shut down.
 
 Please find more details about all devcontainer.json configuration parameters on the [VS Code - devcontainer.json reference](https://code.visualstudio.com/docs/remote/devcontainerjson-reference) page.
