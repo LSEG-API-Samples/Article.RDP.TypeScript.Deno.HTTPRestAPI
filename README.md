@@ -1,4 +1,4 @@
-# Experimenting Deno JavaScript runtime with HTTP REST API application.
+# Developing JavaScript HTTP REST API application with Deno runtime.
 - version: 1.0
 - Last update: August, 2022
 - Environment: Deno runtime and Docker
