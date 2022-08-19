@@ -15,8 +15,16 @@ Deno was announced on 2018 on Ryan's [JSConf](https://jsconf.com/) EU 2018 talk 
 
 This example project shows how to implement a console [TypeScript](https://www.typescriptlang.org) application to retrieve financial data from HTTP REST API with Deno. The application uses the [Refinitiv Data Platform (RDP) APIs](https://developers.refinitiv.com/en/api-catalog/refinitiv-data-platform/refinitiv-data-platform-apis) as the example HTTP REST APIs to consume Refinitiv data. The project is implemented and run in a controlled environment such as [Docker](https://www.docker.com/) and [devcontainer](https://code.visualstudio.com/docs/remote/containers) using the [Deno Docker Image](https://hub.docker.com/r/denoland/deno). 
 
+![figure-1](images/01_deno_intro_diagram.png "Introduction")
+
 **Note**:
 Please be informed that this demo project aims for Development and POC purposes only. 
+
+Logos above are from the following sources:
+* [Deno Artwork: Deno logo](https://deno.land/artwork)
+* [commons.wikimedia.org: JavaScript logo](https://commons.wikimedia.org/wiki/File:Unofficial_JavaScript_logo_2.svg)
+* [commons.wikimedia.org: TypeScript logo](https://commons.wikimedia.org/wiki/File:Typescript_logo_2020.svg)
+* [Docker median resources](https://www.docker.com/company/newsroom/media-resources/)
 
 ## <a id="intro_deno"></a>What is Deno?
 
@@ -113,6 +121,10 @@ The first step is to unzip or download the example project folder into a directo
 2. Start a Docker desktop or Docker engine on your machine.
 4. Install the [VS Code - Remote Development extension pack](https://aka.ms/vscode-remote/download/extension).
 5. Open the VS Code Command Palette with the ```F1``` key, and then select the **Remote-Containers: Reopen in Container** command.
+
+    
+    ![figure-6](images/06_open_devcontainer.png "Open a devcontainer")
+
 6. Once this build completes, VS Code automatically connects to the container, and automatics initializes the project for developers. 
 
 Now VS Code is ready for the Deno HTTP REST API console example inside this devcontainer.  Developers can build and run the example with the following command in the VS Code terminal.
@@ -120,6 +132,9 @@ Now VS Code is ready for the Deno HTTP REST API console example inside this devc
 ```
 $> deno run --allow-env --allow-net ./src/main.ts --username $RDP_USERNAME --password $RDP_PASSWORD --clientid $RDP_APP_KEY --chainric <Chain RIC> --limit <numbers of RICs to get PermID> 
 ```
+![figure-7](images/07_run_result.gif "Running result")
+
+Alternatively, you can edit the running arguments in a ```.vscode/launch.json``` file, then press ```F5``` key to run the main example.
 
 ### <a id="manual_run"></a>Running as a manual Docker Container
 
@@ -152,33 +167,12 @@ If you want to run the example with a Docker container manually, please follow t
     ```
 ### <a id="debug_run"></a>How to enable the Debug Log
 
-You can enable the HTTP debug log to trace HTTP request-response messages with the ```--debug``` command line argument.
+You can enable the app debug log with the ```--debug``` command line argument.
 
 Example:
 ```
 $> docker run -it --name deno_http_app --env-file .env deno_http_app --username %RDP_USERNAME% --password %RDP_PASSWORD% --clientid %RDP_CLIENTID/APPKEY% --chainric <Chain RIC> --limit <numbers of RICs to get PermID> --debug
 ```
-Or add the ```--debug``` parameter to ```"args"``` parameter of the ```launch.json``` configuration file.
-
-```
-{
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "request": "launch",
-            "name": "Launch Program",
-            "type": "node",
-            "program": "${workspaceFolder}/src/main.ts",
-            "cwd": "${workspaceFolder}",
-            "runtimeExecutable": "/bin/deno",
-            "runtimeArgs": ["run", "--allow-env", "--allow-net"],
-			"args": ["--username","${env:RDP_USERNAME}","--password","${env:RDP_PASSWORD}","--clientid","${env:RDP_APP_KEY}","--chainric",".AV.O","--debug"],
-            "outputCapture": "std"
-        }
-    ]
-}
-```
-
 ## <a id="conclusion"></a>Conclusion
 
 Deno is a new JavaScript and TypeScript V8 runtime that aims to be a productive and secure development environment. Compared with Node.js, Deno has a simpler and complete toolset out of the box and provides modern Web API for developers such as Promise, Fetch, etc. Deno also offers a restrictive file system, OS, and network access by default to be a secure sandbox development. It has an interesting history and is actively updated for better performance/compatibility. 

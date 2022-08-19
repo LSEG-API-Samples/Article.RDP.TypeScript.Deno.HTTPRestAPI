@@ -188,7 +188,11 @@ Once the authentication success, the function gets the RDP Auth service response
 - **refresh_token**: Refresh token to be used for obtaining an updated access token before expiration. The application must keep this credential for access token renewal.
 - **expires_in**: Access token validity time in seconds.
 
-Next, after the application received the Access Token (and authorization token) from RDP Auth Service, all subsequent REST API calls will use this token to get the data. Please find more detail regarding RDP APIs workflow in the following resources:
+Next, after the application received the Access Token (and authorization token) from RDP Auth Service, all subsequent REST API calls will use this token to get the data. 
+
+![figure-3](images/03_rdp_workflow_3_0.png "RDP APIs workflow")
+
+Please find more detail regarding RDP APIs workflow in the following resources:
 - [RDP APIs: Introduction to the Request-Response API](https://developers.refinitiv.com/en/api-catalog/refinitiv-data-platform/refinitiv-data-platform-apis/tutorials#introduction-to-the-request-response-api) page.
 - [RDP APIs: Authorization - All about tokens](https://developers.refinitiv.com/en/api-catalog/refinitiv-data-platform/refinitiv-data-platform-apis/tutorials#authorization-all-about-tokens) page.
 
@@ -296,6 +300,8 @@ class RDPController {
 ```
 
 If the authentication is successful, the function returns the authentication information (*access token*, *refresh token*, etc.) as a JSON message (with ```RDP_AuthToken_Type``` type) to the caller. If the authentication fails, throws the errors as an exception event.
+
+![figure-4](images/04_login_success.png "Login Success")
 
 That’s all I have to say about the authentication part.
 
@@ -602,7 +608,7 @@ class Application {
 ```
 The ```console.table()``` result with the ```permIDDataTable``` object is as follows:
 
-![figure-2](images/03_permid_table.png "PermID as table")
+![figure-5](images/05_permid_table.png "PermID as table")
 
 That covers the Symbology data conversion part. 
 
