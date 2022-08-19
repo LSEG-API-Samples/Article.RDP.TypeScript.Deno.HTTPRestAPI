@@ -12,7 +12,7 @@
 import { parse } from "https://deno.land/std@0.150.0/flags/mod.ts";
 
 // NPM library for logging
-import pino from "https://esm.sh/pino";
+import pino from "https://esm.sh/pino@8.4.1";
 
 // Import RDPController class for HTTP operations
 import { RDPController } from "./rdp_https.ts";

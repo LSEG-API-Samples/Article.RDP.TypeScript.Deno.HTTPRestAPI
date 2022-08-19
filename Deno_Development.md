@@ -649,7 +649,7 @@ I will begin by importing the following modules to the ```main.ts``` file:
 import { parse } from "https://deno.land/std@0.150.0/flags/mod.ts";
 
 // NPM library for logging
-import pino from "https://esm.sh/pino";
+import pino from "https://esm.sh/pino@8.4.1";
 
 // Main Application Logic class
 class Application {
@@ -827,3 +827,28 @@ The detail of the configurations above are:
 - ```shutdownAction```: set the VS Code stops the container when the editor window is closed/shut down.
 
 Please find more details about all devcontainer.json configuration parameters on the [VS Code - devcontainer.json reference](https://code.visualstudio.com/docs/remote/devcontainerjson-reference) page.
+
+That’s all I have to say about developing HTTP REST API console application with Deno.
+
+## <a id="how_to_run"></a>How to run the example project
+
+Please see how to run the project test suit in the [README.md](README.md#how_to_run) file.
+
+## <a id="references"></a>References
+
+For further details, please check out the following resources:
+
+* [Refinitiv Data Platform APIs page](https://developers.refinitiv.com/en/api-catalog/refinitiv-data-platform/refinitiv-data-platform-apis) on the [Refinitiv Developer Community](https://developers.refinitiv.com/) website.
+* [Refinitiv Data Platform APIs Playground page](https://api.refinitiv.com).
+* [Refinitiv Data Platform APIs: Introduction to the Request-Response API](https://developers.refinitiv.com/en/api-catalog/refinitiv-data-platform/refinitiv-data-platform-apis/tutorials#introduction-to-the-request-response-api).
+* [Refinitiv Data Platform APIs: Authorization - All about tokens](https://developers.refinitiv.com/en/api-catalog/refinitiv-data-platform/refinitiv-data-platform-apis/tutorials#authorization-all-about-tokens).
+* [Limitations and Guidelines for the RDP Authentication Service](https://developers.refinitiv.com/en/article-catalog/article/limitations-and-guidelines-for-the-rdp-authentication-service) article.
+* [Getting Started with Refinitiv Data Platform](https://developers.refinitiv.com/en/article-catalog/article/getting-start-with-refinitiv-data-platform) article.
+* [Deno official website](https://deno.land/).
+* [Deno by example](https://examples.deno.land/) webpage.
+* [Deno official document](https://deno.land/manual) page.
+* [Deno DockerHub](https://hub.docker.com/r/denoland/deno) page.
+* [Running Deno in Docker](https://medium.com/deno-the-complete-reference/running-deno-in-docker-35756ffff66d) blog post.
+* [Deno World](https://medium.com/deno-the-complete-reference?source=post_page-----dcf518948a9d--------------------------------) blog series.
+
+For any questions related to Refinitiv Data Platform APIs, please use the [RDP APIs Forum](https://community.developers.refinitiv.com/spaces/231/index.html) on the [Developers Community Q&A page](https://community.developers.refinitiv.com/).
