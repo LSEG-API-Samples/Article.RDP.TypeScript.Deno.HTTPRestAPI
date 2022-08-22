@@ -98,7 +98,7 @@ This demo project requires the following dependencies.
 
 Please contact your Refinitiv representative to help you to access the RDP account and services. You can find more detail regarding the RDP access credentials set up from the lease see the *Getting Started for User ID* section of the [Getting Start with Refinitiv Data Platform](https://developers.refinitiv.com/en/article-catalog/article/getting-start-with-refinitiv-data-platform) article.
 
-## How to Run
+## <a id="how_to_run"></a>How to Run
 
 The first step is to unzip or download the example project folder into a directory of your choice, then set up a devcontainer or Docker environments based on your preference.
 
