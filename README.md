@@ -196,6 +196,7 @@ That brings me to the end of my Deno project. For further details, please check 
 * [Deno official website](https://deno.land/).
 * [Deno by example](https://examples.deno.land/) webpage.
 * [Deno official document](https://deno.land/manual) page.
+* [Deno: Permissions document](https://deno.land/manual@v1.24.3/getting_started/permissions) page.
 * [Deno DockerHub](https://hub.docker.com/r/denoland/deno) page.
 * [Running Deno in Docker](https://medium.com/deno-the-complete-reference/running-deno-in-docker-35756ffff66d) blog post.
 * [Deno World](https://medium.com/deno-the-complete-reference?source=post_page-----dcf518948a9d--------------------------------) blog series.

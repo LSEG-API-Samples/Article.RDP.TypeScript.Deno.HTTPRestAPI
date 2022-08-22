@@ -24,6 +24,9 @@ The overview code structure of the file is shown below.
 ```
 // main.ts
 
+// Deno STD libraries
+import { parse } from "https://deno.land/std@0.150.0/flags/mod.ts";
+
 // Import RDPController class for HTTP operations
 import { RDPController } from "./rdp_https.ts";
 
@@ -96,11 +99,31 @@ class Application {
 
 // ---------------- Main Function ---------------------------------------- //
 
-const app = new Application(...);
+
+//Parsing command line arguments
+const flags = parse(Deno.args, {
+  string: ["username", "password", "clientid", "chainric"],
+  boolean: ["debug"],
+  default: { chainric: ".AV.O", limit: 10, debug: false },
+});
+
+...
+
+const app = new Application(
+  flags.username,
+  flags.password,
+  flags.clientid,
+  flags.chainric,
+  flags.limit as number,
+  flags.debug,
+);
 // Running the application
 app.run();
 
 ```
+
+You may be noticed that the code uses [Deno:/flags​/mod.ts module](https://doc.deno.land/https://deno.land/std@0.120.0/flags/mod.ts) for parsing command line arguments to get information from users such as the RDP credentials, chain ric, debug flag, etc. You can find more detail about the Deno command line arguments feature from [Deno: Command Line Arguments example](https://examples.deno.land/command-line-arguments) page.
+
 ### <a id="ts_rdp_http_file"></a>RDP HTTP Class Code Introduction
 
 Now let me turn to the ```rdp_https.ts``` file which is the main RDP HTTP operations class. It manages all request-response messages between the application and the RDP services (Authentication, Pricing, and Symbology). 
@@ -226,11 +249,16 @@ export class RDPController {
 
 You may be noticed that the code imports Types (and class files) directly from the relative path using ES Modules syntax. Deno supports the absolute path and HTTPS URLs too.
 
-My next point is the environment variable which is used for setting the API endpoints at run time. Deno lets developers access environment variables via the ```Deno.env``` object. Please note that access to environment variables is only possible if the Deno process is running with the **--allow-env* env var permissions flag.
+My next point is the environment variable which is used for setting the API endpoints at run time. Deno lets developers access environment variables via the ```Deno.env``` object. Please note that access to environment variables is only possible if the Deno process is running with the **--allow-env** env var permissions flag.
+
+If you run this example code without --allow-env flag, Deno automatics prompt that the code needs environment variables access and asks to confirm if you want to proceed as follows:
+
+![figure-3b](images/03b_deno_env_prompt.png "Deno allow env prompt")
 
 You can find more detail about Deno features above from the following resources:
 * [Deno: Importing & Exporting example](https://examples.deno.land/import-export)
 * [Deno: Environment Variables example](https://examples.deno.land/environment-variables)
+* [Deno: Permissions document](https://deno.land/manual@v1.24.3/getting_started/permissions)
 
 ### Sending Authentication Request with Fetch API
 
@@ -298,10 +326,18 @@ class RDPController {
   };
 }
 ```
+That brings us to other Deno security behaviors, Deno does not let the application access network by default. You need to specifically set the **--allow-net** permission flag to enable network access. If you run this example code without the **--allow-net** flag, Deno automatics prompt that the code needs network access and asks to confirm if you want to proceed as follows:
+
+![figure-3b](images/03c_deno_net_prompt.png "Deno allow net prompt")
 
 If the authentication is successful, the function returns the authentication information (*access token*, *refresh token*, etc.) as a JSON message (with ```RDP_AuthToken_Type``` type) to the caller. If the authentication fails, throws the errors as an exception event.
 
 ![figure-4](images/04_login_success.png "Login Success")
+
+You can find more detail about Deno features above from the following resources:
+* [Deno: HTTP Requests example](https://examples.deno.land/http-requests)
+* [Deno: Fetch data document](https://deno.land/manual@v1.24.3/examples/fetch_data)
+* [Deno: Permissions document](https://deno.land/manual@v1.24.3/getting_started/permissions)
 
 That’s all I have to say about the authentication part.
 
@@ -638,45 +674,7 @@ I am demonstrating Deno and npm package integration with the [Pino](https://www.
 
 [Pino](https://www.npmjs.com/package/pino) is a fast and small logger library for the Node.js application. I am using this library to log debug information such as incoming and outgoing HTTP messages if the user input **--debug** argument when running the application.
 
-I will begin by importing the following modules to the ```main.ts``` file:
-- [Deno:/flags​/mod.ts module](https://doc.deno.land/https://deno.land/std@0.120.0/flags/mod.ts): for parsing command line arguments
-- Pino library as remote HTTP module via [esm.sh](https://esm.sh/) CDN.
-
-```
-// main.ts
-
-// Deno STD libraries
-import { parse } from "https://deno.land/std@0.150.0/flags/mod.ts";
-
-// NPM library for logging
-import pino from "https://esm.sh/pino@8.4.1";
-
-// Main Application Logic class
-class Application {
-}
-
-//Parsing command line arguments
-const flags = parse(Deno.args, {
-  string: ["username", "password", "clientid", "chainric"],
-  boolean: ["debug"],
-  default: { chainric: ".AV.O", limit: 10, debug: false },
-});
-
-...
-
-const app = new Application(
-  flags.username,
-  flags.password,
-  flags.clientid,
-  flags.chainric,
-  flags.limit as number,
-  flags.debug,
-);
-// Running the application
-app.run();
-```
-
-On the ```Application``` class side, uses the Pino logger to print response data from the RDP services.
+I will begin by importing the Pino library as a remote HTTP module via [esm.sh](https://esm.sh/) CDN to the ```main.ts``` file. The ```Application``` class sets the Pino log level based on the user input *debug* flag when running the application. If Pino debug level is enabled, the code uses it to print response data from the RDP services.
 
 ```
 // main.ts
@@ -847,6 +845,7 @@ For further details, please check out the following resources:
 * [Deno official website](https://deno.land/).
 * [Deno by example](https://examples.deno.land/) webpage.
 * [Deno official document](https://deno.land/manual) page.
+* [Deno: Permissions document](https://deno.land/manual@v1.24.3/getting_started/permissions) page.
 * [Deno DockerHub](https://hub.docker.com/r/denoland/deno) page.
 * [Running Deno in Docker](https://medium.com/deno-the-complete-reference/running-deno-in-docker-35756ffff66d) blog post.
 * [Deno World](https://medium.com/deno-the-complete-reference?source=post_page-----dcf518948a9d--------------------------------) blog series.
