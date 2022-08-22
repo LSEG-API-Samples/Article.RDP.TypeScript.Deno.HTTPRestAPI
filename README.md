@@ -200,5 +200,6 @@ That brings me to the end of my Deno project. For further details, please check 
 * [Deno DockerHub](https://hub.docker.com/r/denoland/deno) page.
 * [Running Deno in Docker](https://medium.com/deno-the-complete-reference/running-deno-in-docker-35756ffff66d) blog post.
 * [Deno World](https://medium.com/deno-the-complete-reference?source=post_page-----dcf518948a9d--------------------------------) blog series.
+* Ryan Dahl's [10 Things I Regret About Node.js](https://www.youtube.com/watch?v=M3BM9TB-8yA) talk.
 
 For any questions related to Refinitiv Data Platform APIs, please use the [RDP APIs Forum](https://community.developers.refinitiv.com/spaces/231/index.html) on the [Developers Community Q&A page](https://community.developers.refinitiv.com/).
