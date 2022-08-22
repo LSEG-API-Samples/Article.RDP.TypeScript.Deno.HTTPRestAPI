@@ -24,7 +24,7 @@ Logos above are from the following sources:
 * [Deno Artwork: Deno logo](https://deno.land/artwork)
 * [commons.wikimedia.org: JavaScript logo](https://commons.wikimedia.org/wiki/File:Unofficial_JavaScript_logo_2.svg)
 * [commons.wikimedia.org: TypeScript logo](https://commons.wikimedia.org/wiki/File:Typescript_logo_2020.svg)
-* [Docker median resources](https://www.docker.com/company/newsroom/media-resources/)
+* [Docker media resources](https://www.docker.com/company/newsroom/media-resources/)
 
 ## <a id="intro_deno"></a>What is Deno?
 
