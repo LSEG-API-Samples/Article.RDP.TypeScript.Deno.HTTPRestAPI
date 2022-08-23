@@ -39,7 +39,7 @@ Even though both Deno and Node.js are built on Google's V8 JavaScript engine, De
 - Deno executable file takes on the role of both runtime and package manager. It supports only URLs for loading local or remote dependencies, similar to browsers, so the ```package.json``` file and package manager (like Node.js's ```npm```) is not required.
 - Supports TypeScript out of the box.
 - Supports Web [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) natively.
-- Supports only [ES Modules](https://tc39.es/ecma262/#sec-modules) (```import x from y```) like browsers where Node.js supports both ES Modules and [CommonJS](https://www.commonjs.org/) (```require()```).
+- Supports only [ES Modules](https://tc39.es/ecma262/#sec-modules) (```import x from y```) like browsers where Node.js supports both ES Modules and [CommonJS](https://www.commonjs.org/) (```require(y)```).
 - All [async actions](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function) in Deno return a [promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise).
 - Comes with a set of standard modules such as Base64, command line arguments parsing, JSON, dotenv, file system, HTTP, etc that can be loaded via URLs on the fly.
 - Provides built-in development tools such as a code formatter (```deno fmt```), a linter (```deno lint```), and a test runner (```deno test```), etc.
@@ -136,6 +136,8 @@ $> deno run --allow-env --allow-net ./src/main.ts --username $RDP_USERNAME --pas
 
 Alternatively, you can edit the running arguments in a ```.vscode/launch.json``` file, then press ```F5``` key to run the main example.
 
+**Caution:** You *should not* share this *.env.devcontainer* file to your peers or commit/push it to the version control. You should add the file to the *.gitignore* file to avoid adding it to version control or public repository accidentally.
+
 ### <a id="manual_run"></a>Running as a manual Docker Container
 
 If you want to run the example with a Docker container manually, please follow the steps below.
@@ -165,6 +167,9 @@ If you want to run the example with a Docker container manually, please follow t
     ```
     $> docker rm deno_http_app
     ```
+
+**Caution:** You *should not* share this *.env* file to your peers or commit/push it to the version control. You should add the file to the *.gitignore* file to avoid adding it to version control or public repository accidentally.
+
 ### <a id="debug_run"></a>How to enable the Debug Log
 
 You can enable the app debug log with the ```--debug``` command line argument.

@@ -9,7 +9,7 @@ ALL EXAMPLE CODE IS PROVIDED ON AN “AS IS” AND “AS AVAILABLE” BASIS FOR 
 
 ## <a id="project_structure"></a> Project Structure Overview
 
-This example project is a TypeScript console application that login to the RDP platform, then requests the Chain data and PermID information from the RDP Pricing-Chain and Symbology services respectively. The project source code are as follows:
+This example project is a TypeScript console application that login to the RDP platform, then requests the Chain data and PermID information from the RDP Pricing-Chain and Symbology services respectively. The project source code is as follows:
 
 * src/main.ts: The main console application class.
 * src/rdp_https.ts: The main RDP HTTP operations class.
@@ -462,7 +462,7 @@ That covers the Chain data part.
 
 ### Sending Symbology Request to get PermID
 
-This example converts a symbol from the RIC Code identifier to [Permanent Identifiers (PermIDs)](https://www.refinitiv.com/en/products/permid-data-management), [LEI](https://en.wikipedia.org/wiki/Legal_Entity_Identifier) using the RDP the Discovery Symbology Service. I will begin by importing the ```PDP_Symbology_Req_Type``` Type Aliases for the Symbology JSON request message, and creating a function named ```getSymbology()``` in the HTTP Controller  ```rdp_https.ts``` file. 
+This example converts a symbol from the RIC Code identifier to [Permanent Identifiers (PermIDs)](https://www.refinitiv.com/en/products/permid-data-management) using the RDP the Discovery Symbology Service. I will begin by importing the ```PDP_Symbology_Req_Type``` Type Aliases for the Symbology JSON request message, and creating a function named ```getSymbology()``` in the HTTP Controller  ```rdp_https.ts``` file. 
 
 The steps to create the JSON request message are shown below.
 
@@ -557,6 +557,9 @@ class RDPController {
   ...
 }
 ```
+
+That’s all I have to say about PermID data.
+
 ### Displaying Symbology Data
 
 The next step is displaying PermIDs data in a readable format. The application uses the [console.table()](https://developer.mozilla.org/en-US/docs/Web/API/console/table) function to print data to a console in a tabular format.
@@ -650,7 +653,7 @@ That covers the Symbology data conversion part.
 
 ## <a id="deno_npm"></a>Using NPM modules with Deno
 
-My next point is using the npm modules with Deno. As I have mentioned earlier, Deno supports the ES Modules system only while Node.js supports both CommonJS and ES Modules. Their internal module systems also work differently. This makes Deno not support the [npm](https://www.npmjs.com/) package eco-system and its massive libraries *as-is*. Deno lets developers access **some npm packages** via the content delivery networks (CDNs) as the remote HTTP modules. The CDNs such as [esm.sh](https://esm.sh/), [Skypack.dev](https://www.skypack.dev/), and [UNPKG](https://unpkg.com/) provide Deno friendly npm packages in the ES Module format and support Deno integration. The example usage is as follows:
+My next point is using the npm modules with Deno. As I have mentioned earlier, Deno supports the ES Modules system only while Node.js supports both CommonJS and ES Modules. Their internal module systems also work differently. This makes Deno not support the [npm](https://www.npmjs.com/) package eco-system and its massive libraries *as-is*. Deno lets developers access **some npm packages** via the content delivery networks (CDNs) as the remote HTTP modules. The CDNs such as [esm.sh](https://esm.sh/), [Skypack.dev](https://www.skypack.dev/), and [UNPKG](https://unpkg.com/) provide Deno-friendly npm packages in the ES Module format and support Deno integration. The example usage is as follows:
 
 ```
 import React from "https://esm.sh/react";
@@ -680,7 +683,7 @@ I will begin by importing the Pino library as a remote HTTP module via [esm.sh](
 // main.ts
 
 // NPM library for logging
-import pino from "https://esm.sh/pino";
+import pino from "https://esm.sh/pino@8.4.1";
 ...
 // Main Application Logic class
 class Application {
