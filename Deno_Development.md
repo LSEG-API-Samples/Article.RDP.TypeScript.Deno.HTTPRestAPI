@@ -671,7 +671,9 @@ You can find more detail about Deno and npm packages from the following Deno res
 * [Deno: Packages from CDNs document](https://deno.land/manual@v1.15.2/npm_nodejs/cdns)
 * [Deno: Compatibility with Node and npm announcement](https://deno.com/blog/changes#compatibility-with-node-and-npm)
 
-I am demonstrating Deno and npm package integration with the [Pino](https://www.npmjs.com/package/pino) logger library.
+I am demonstrating Deno and npm package integration with the [Pino](https://www.npmjs.com/package/pino) logger library via [esm.sh](https://esm.sh/) CDN.
+
+**Note:** Deno version *1.25.0* just has been released with the [experimental npm support](https://deno.com/blog/v1.25#experimental-npm-support) feature. I did a quick test, and I found this feature needs the project code changed more than I expected. Some packages are still not supported too. In my opinion, this npm integration is still a long way to go.
 
 ### Integrate Deno with NPM package
 
