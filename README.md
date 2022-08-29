@@ -208,3 +208,7 @@ That brings me to the end of my Deno project. For further details, please check 
 * Ryan Dahl's [10 Things I Regret About Node.js](https://www.youtube.com/watch?v=M3BM9TB-8yA) talk.
 
 For any questions related to Refinitiv Data Platform APIs, please use the [RDP APIs Forum](https://community.developers.refinitiv.com/spaces/231/index.html) on the [Developers Community Q&A page](https://community.developers.refinitiv.com/).
+
+## Developers Articles
+
+* [Developing TypeScript HTTP REST API application with Deno](https://developers.refinitiv.com/en/article-catalog/article/developing-typescript-http-rest-api-application-with-deno-runtim) article.
