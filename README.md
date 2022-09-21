@@ -212,3 +212,4 @@ For any questions related to Refinitiv Data Platform APIs, please use the [RDP A
 ## Developers Articles
 
 * [Developing TypeScript HTTP REST API application with Deno](https://developers.refinitiv.com/en/article-catalog/article/developing-typescript-http-rest-api-application-with-deno-runtim) article.
+* [Developing TypeScript HTTP REST API application with Deno](https://wasin-waeosri.medium.com/developing-typescript-http-rest-api-application-with-deno-75edc7f876bf) Medium blog post.
